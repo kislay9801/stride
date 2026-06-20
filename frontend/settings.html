@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stride · Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/assets/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-background text-on-surface">
+<div id="app-shell"></div>
+
+<main class="ml-64 pt-16 min-h-screen">
+  <div class="max-w-3xl mx-auto px-gutter py-xl space-y-xl">
+    <section>
+      <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Settings</h2>
+      <p class="font-body-lg text-body-lg text-on-surface-variant mt-xs">Manage your profile, appearance, and account.</p>
+    </section>
+
+    <!-- Profile -->
+    <section class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/10 space-y-lg">
+      <h3 class="font-headline-md text-headline-md text-primary">Profile</h3>
+      <div class="flex items-center gap-lg">
+        <div id="settings-avatar" class="w-16 h-16 rounded-full bg-primary-fixed-dim overflow-hidden border-2 border-white shrink-0"></div>
+        <div class="flex-1">
+          <p id="settings-email" class="font-body-md text-body-md text-on-surface-variant"></p>
+        </div>
+      </div>
+      <div>
+        <label class="block text-label-sm text-on-surface-variant mb-xs">Display name</label>
+        <div class="flex gap-sm">
+          <input id="name-input" type="text" class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20"/>
+          <button id="save-name" class="px-lg py-md bg-primary text-on-primary rounded-xl font-label-md hover:opacity-90 active:scale-95 transition-all">Save</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Appearance -->
+    <section class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/10 space-y-md">
+      <h3 class="font-headline-md text-headline-md text-primary">Appearance</h3>
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="font-label-md text-label-md font-bold text-on-surface">Dark mode</p>
+          <p class="font-label-sm text-label-sm text-on-surface-variant">Easier on the eyes for late-night study.</p>
+        </div>
+        <button id="theme-toggle" role="switch" class="relative w-14 h-8 rounded-full bg-surface-container-highest transition-colors">
+          <span id="theme-knob" class="absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-transform"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Account -->
+    <section class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/10 space-y-md">
+      <h3 class="font-headline-md text-headline-md text-primary">Account</h3>
+      <div id="account-body"></div>
+    </section>
+
+    <!-- Help -->
+    <section id="help" class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/10 space-y-sm">
+      <h3 class="font-headline-md text-headline-md text-primary">Help</h3>
+      <p class="font-body-md text-body-md text-on-surface-variant">Stride breaks assignments into roadmaps, turns notes into flashcards/quizzes/summaries, and includes an AI tutor.</p>
+      <ul class="list-disc pl-lg font-body-md text-body-md text-on-surface-variant space-y-xs">
+        <li><b>Dashboard</b> — your day, cognitive load, and weekly focus.</li>
+        <li><b>Assignment Breakdown</b> — paste or upload a brief to generate a step-by-step roadmap.</li>
+        <li><b>Revision Hub</b> — write notes, then generate study materials.</li>
+        <li><b>AI Tutor</b> — ask questions and get explanations.</li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="/assets/firebase-config.js"></script>
+<script src="/assets/auth.js"></script>
+<script src="/assets/common.js"></script>
+<script src="/assets/settings.js"></script>
+</body>
+</html>

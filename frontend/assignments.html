@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stride · Assignment Breakdown</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/assets/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-background text-on-surface">
+<div id="app-shell"></div>
+
+<main class="ml-64 pt-16 min-h-screen">
+  <div class="max-w-[1200px] mx-auto px-gutter py-xl">
+    <section class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-lg">
+      <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Assignment Breakdown</h2>
+        <p class="font-body-lg text-body-lg text-on-surface-variant mt-xs">Deconstruct your complex tasks into manageable steps.</p>
+      </div>
+      <div class="flex gap-md items-center">
+        <select id="assignment-select" class="px-lg py-md border border-outline-variant rounded-full bg-surface-container-lowest font-label-md text-label-md focus:ring-2 focus:ring-primary/20"></select>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-12 gap-lg">
+      <!-- Left: upload + context -->
+      <div class="col-span-12 lg:col-span-4 space-y-lg">
+        <form id="breakdown-form" class="space-y-md">
+          <input id="title-input" class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20" placeholder="Assignment title (optional)" type="text"/>
+          <div id="drop-zone" class="glass-card p-lg rounded-xl flex flex-col items-center justify-center text-center border-dashed border-2 border-primary/20 hover:border-primary/50 transition-all cursor-pointer group h-44">
+            <div class="w-14 h-14 bg-primary-container/30 rounded-full flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-primary text-[28px]">upload_file</span>
+            </div>
+            <h3 class="font-label-md font-bold text-on-surface">Upload Brief</h3>
+            <p id="file-name" class="font-label-sm text-on-surface-variant mt-xs px-lg">Drop a .txt / .md / .pdf, or click to browse.</p>
+            <input id="file-input" class="hidden" type="file" accept=".txt,.md,.pdf,.doc,.docx,text/*"/>
+          </div>
+          <textarea id="brief-input" rows="6" class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20 custom-scrollbar" placeholder="…or paste your assignment brief here."></textarea>
+          <button id="generate-btn" type="submit" class="w-full flex items-center justify-center gap-sm px-lg py-md bg-primary text-on-primary font-label-md rounded-full hover:opacity-90 transition-opacity active:scale-95">
+            <span class="material-symbols-outlined text-[20px]">auto_awesome</span> Generate Roadmap
+          </button>
+        </form>
+
+        <div class="bg-surface-container-low p-lg rounded-xl">
+          <div class="flex items-center gap-sm mb-md">
+            <span class="material-symbols-outlined text-primary">insights</span>
+            <h4 class="font-label-md font-bold text-primary">AI Quick Context</h4>
+          </div>
+          <div id="context" class="space-y-md">
+            <p class="text-label-sm text-on-surface-variant">Select or generate an assignment to see its context.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: roadmap -->
+      <div class="col-span-12 lg:col-span-8">
+        <div class="glass-card rounded-xl overflow-hidden">
+          <div class="p-lg border-b border-outline-variant/10 flex items-center justify-between">
+            <h3 class="font-headline-md text-headline-md text-on-surface">Your Roadmap</h3>
+            <span id="remaining-pill" class="px-md py-xs bg-secondary-container text-on-secondary-container text-label-sm rounded-full font-bold"></span>
+          </div>
+          <div id="roadmap" class="p-lg space-y-md custom-scrollbar max-h-[640px] overflow-y-auto">
+            <p class="text-on-surface-variant text-body-md">Loading…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="/assets/firebase-config.js"></script>
+<script src="/assets/auth.js"></script>
+<script src="/assets/common.js"></script>
+<script src="/assets/assignments.js"></script>
+</body>
+</html>

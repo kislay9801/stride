@@ -1,0 +1,22 @@
+{
+  "name": "stride",
+  "version": "1.0.0",
+  "description": "Stride — a calm AI-powered study app (dashboard, assignment breakdown, revision hub, AI tutor).",
+  "type": "module",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js",
+    "seed": "node backend/db/seed.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "firebase-admin": "^12.7.0",
+    "multer": "^2.0.0"
+  },
+  "comment_overrides": "uuid is forced to a patched version to clear transitive advisories in firebase-admin's Cloud Storage/Firestore HTTP stack, which this app does not use (Auth only).",
+  "overrides": {
+    "uuid": "^11.1.1"
+  }
+}

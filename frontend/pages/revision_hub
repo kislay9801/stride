@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#b0e0e6",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#2e3132",
+                        "background": "#f8fafb",
+                        "primary": "#37656b",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdcbf",
+                        "primary-fixed-dim": "#9fcfd5",
+                        "on-primary-container": "#36656a",
+                        "on-primary-fixed": "#001f23",
+                        "secondary-fixed": "#bdefbc",
+                        "tertiary-fixed-dim": "#edbd93",
+                        "on-secondary-container": "#406d44",
+                        "on-secondary-fixed": "#002108",
+                        "inverse-primary": "#9fcfd5",
+                        "surface-bright": "#f8fafb",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-secondary-fixed-variant": "#24502a",
+                        "inverse-on-surface": "#eff1f2",
+                        "tertiary": "#7b5735",
+                        "on-tertiary-fixed-variant": "#60401f",
+                        "primary-fixed": "#bbebf1",
+                        "surface-dim": "#d8dadb",
+                        "on-tertiary-container": "#7a5634",
+                        "secondary": "#3c6840",
+                        "surface": "#f8fafb",
+                        "secondary-container": "#baecba",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c0c8c9",
+                        "secondary-fixed-dim": "#a1d3a2",
+                        "surface-container": "#eceeef",
+                        "on-surface": "#191c1d",
+                        "surface-tint": "#37656b",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#ffcea3",
+                        "on-tertiary-fixed": "#2d1600",
+                        "on-surface-variant": "#404849",
+                        "on-background": "#191c1d",
+                        "surface-container-high": "#e6e8e9",
+                        "outline": "#707979",
+                        "on-primary-fixed-variant": "#1d4d53",
+                        "surface-variant": "#e1e3e4",
+                        "surface-container-low": "#f2f4f5",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "xl": "40px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "md": "16px",
+                        "unit": "4px",
+                        "lg": "24px",
+                        "container-max": "1200px"
+                    },
+                    "fontFamily": {
+                        "display": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "label-sm": ["Geist"],
+                        "headline-lg": ["Geist"]
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; }
+        .glass-panel {
+            background: rgba(176, 224, 230, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(55, 101, 107, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .notebook-lines {
+            background-image: linear-gradient(#b0e0e6 1px, transparent 1px);
+            background-size: 100% 2rem;
+        }
+        /* Flashcard Flip Animation */
+        .flashcard-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-lowest flex flex-col py-xl px-md z-50 border-r border-outline-variant/20">
+<div class="mb-xl px-sm">
+<h1 class="text-headline-md font-headline-md font-semibold text-primary">Stride</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Stay Focused</p>
+</div>
+<nav class="flex-1 space-y-sm">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-medium hover:bg-primary-container/30 transition-colors duration-200 cursor-pointer active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-medium hover:bg-primary-container/30 transition-colors duration-200 cursor-pointer active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md text-body-md">Assignment Breakdown</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-medium hover:bg-primary-container/30 transition-colors duration-200 cursor-pointer active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-body-md text-body-md">AI Tutor</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-primary font-bold border-r-2 border-primary bg-primary-container/20 transition-colors duration-200 cursor-pointer active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-body-md text-body-md">Revision Hub</span>
+</a>
+</nav>
+<div class="mt-auto space-y-sm">
+<button class="w-full bg-primary-container text-on-primary-container py-md rounded-xl font-label-md text-label-md flex items-center justify-center gap-sm transition-transform active:scale-95 shadow-sm">
+<span class="material-symbols-outlined">bolt</span>
+                Start Focus Mode
+            </button>
+<div class="pt-lg border-t border-outline-variant/30">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-medium hover:bg-primary-container/30 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-medium hover:bg-primary-container/30 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md text-body-md">Help</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Top App Bar -->
+<header class="fixed top-0 right-0 left-64 h-16 z-40 flex items-center justify-between px-gutter w-auto bg-surface/70 backdrop-blur-xl border-b border-outline-variant/10">
+<div class="flex items-center bg-surface-container-highest/50 px-md py-xs rounded-full w-96 group focus-within:ring-1 ring-primary transition-all">
+<span class="material-symbols-outlined text-on-surface-variant mr-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md w-full placeholder:text-on-surface-variant" placeholder="Search your notes..." type="text"/>
+</div>
+<div class="flex items-center gap-lg">
+<button class="relative hover:bg-surface-container-highest/50 p-sm rounded-full transition-all active:scale-90">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="hover:bg-surface-container-highest/50 p-sm rounded-full transition-all active:scale-90">
+<span class="material-symbols-outlined text-on-surface-variant">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 pt-16 h-screen overflow-y-auto scroll-smooth">
+<div class="max-w-container-max mx-auto p-gutter space-y-xl">
+<!-- Hero / Notebook Header -->
+<section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-lg">
+<div class="space-y-sm">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Revision Hub</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">Curate and transform your learning materials into interactive study sessions with cognitive calm.</p>
+</div>
+<button class="bg-primary text-on-primary px-lg py-md rounded-xl font-label-md text-label-md flex items-center gap-md shadow-md hover:opacity-90 active:scale-95 transition-all" id="generateBtn">
+<span class="material-symbols-outlined">magic_button</span>
+                    Generate Study Materials
+                </button>
+</section>
+<!-- Bento Grid of Materials -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-lg h-auto">
+<!-- Active Notebook (Large) -->
+<div class="md:col-span-8 glass-panel rounded-xl p-lg relative overflow-hidden flex flex-col bg-primary-container/10">
+<div class="flex justify-between items-center mb-lg">
+<div class="flex items-center gap-md">
+<span class="p-sm bg-primary-container rounded-lg">
+<span class="material-symbols-outlined text-primary">description</span>
+</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Organic Chemistry Fundamentals</h3>
+<p class="text-label-sm text-on-surface-variant">Updated 2 hours ago • 14 pages</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex-1 notebook-lines min-h-[300px] p-md rounded-lg bg-surface-container-lowest border border-primary-container/30">
+<p class="text-body-md text-on-surface leading-loose mb-md">
+                            Introduction to Carbon Chains and Functional Groups. The reactivity of organic molecules is largely determined by their functional groups.
+                        </p>
+<p class="text-body-md text-on-surface leading-loose">
+                            Alkanes are saturated hydrocarbons...
+                        </p>
+<div class="mt-xl flex flex-wrap gap-sm">
+<span class="px-md py-xs bg-primary-container/40 text-on-primary-container rounded-full text-label-sm font-medium">#chemistry</span>
+<span class="px-md py-xs bg-primary-container/40 text-on-primary-container rounded-full text-label-sm font-medium">#finals</span>
+<span class="px-md py-xs border border-primary-container/60 text-primary-container bg-transparent rounded-full text-label-sm font-medium hover:bg-primary-container/10 cursor-pointer">+ Add tag</span>
+</div>
+</div>
+</div>
+<!-- Secondary Cards (Column) -->
+<div class="md:col-span-4 flex flex-col gap-lg">
+<!-- Progress Card -->
+<div class="glass-panel rounded-xl p-lg space-y-md bg-primary-container/5">
+<h4 class="font-headline-md text-headline-md text-on-surface">Weekly Mastery</h4>
+<div class="space-y-sm">
+<div class="flex justify-between text-label-md">
+<span class="">Organic Chemistry</span>
+<span class="font-bold text-primary">68%</span>
+</div>
+<div class="h-1.5 bg-primary-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[68%] transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(55,101,107,0.3)]"></div>
+</div>
+</div>
+<div class="space-y-sm">
+<div class="flex justify-between text-label-md">
+<span class="">Molecular Biology</span>
+<span class="font-bold text-primary">42%</span>
+</div>
+<div class="h-1.5 bg-primary-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[42%] transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(55,101,107,0.3)]"></div>
+</div>
+</div>
+</div>
+<!-- Illustration Card -->
+<div class="flex-1 rounded-xl overflow-hidden relative group shadow-sm">
+<img alt="A serene study space" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCti0U6HfTFe1c5lXCsvPvRBh75Al8TWAulhtiC7yc7yEaHWLegVA3n9dqM6sOeQ3dGj1m_f5-W0qie6uZBk77MZYSN8-fUT8qFaruI9rX_szM9M1JJhzEY8rcc1A_tmqwXRunDSmgRcFRQC5LH21eY-gsDC3dSNA68ZgyAiEZNv1tNQYHLrHFfhGkymsP-3f-rjGU60T9pHCzJEYrhgORM89FNVa9Ago6TErsNJTgvTd8KrPaa7E_sQ80QARYQ9FzXm17vt--MHoAp"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent flex flex-col justify-end p-lg text-on-primary">
+<p class="font-headline-md text-headline-md">Focus Mode Active</p>
+<p class="text-label-md opacity-90">Your mind is ready.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Generated Materials Section (Prominent Tabs) -->
+<section class="transition-all duration-700 opacity-100 pt-md" id="materialsSection">
+<div class="flex flex-col gap-lg">
+<div class="bg-primary-container/20 p-xs rounded-xl flex gap-xs max-w-2xl mx-auto w-full">
+<button class="tab-btn active flex-1 py-md rounded-lg flex items-center justify-center gap-sm transition-all bg-primary text-on-primary font-bold shadow-sm" data-tab="flashcards">
+<span class="material-symbols-outlined">style</span>
+                            Flashcards
+                        </button>
+<button class="tab-btn flex-1 py-md rounded-lg flex items-center justify-center gap-sm transition-all text-on-surface-variant font-medium hover:bg-primary-container/40" data-tab="quizzes">
+<span class="material-symbols-outlined">quiz</span>
+                            Quizzes
+                        </button>
+<button class="tab-btn flex-1 py-md rounded-lg flex items-center justify-center gap-sm transition-all text-on-surface-variant font-medium hover:bg-primary-container/40" data-tab="summaries">
+<span class="material-symbols-outlined">summarize</span>
+                            Summaries
+                        </button>
+</div>
+<!-- Tab Contents -->
+<div class="min-h-[400px]" id="tabContent">
+<!-- Flashcards View -->
+<div class="tab-pane grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-lg" id="flashcards">
+<!-- Flashcard 1 -->
+<div class="flashcard perspective-1000 h-64 cursor-pointer group">
+<div class="flashcard-inner relative w-full h-full text-center transition-transform duration-500 shadow-sm rounded-xl">
+<div class="flashcard-front absolute inset-0 glass-panel bg-white/80 p-lg flex flex-col justify-between items-center rounded-xl border border-primary/20">
+<p class="text-label-sm text-primary uppercase tracking-widest font-bold">Concept</p>
+<p class="font-headline-md text-on-surface">Chiral Center</p>
+<div class="flex items-center gap-sm text-on-surface-variant text-label-sm">
+<span class="material-symbols-outlined">touch_app</span>
+<span class="">Tap to flip</span>
+</div>
+</div>
+<div class="flashcard-back absolute inset-0 bg-primary-container p-lg flex flex-col justify-center items-center rounded-xl">
+<p class="text-body-md text-on-primary-container leading-relaxed">An atom that has four different groups bonded to it in such a manner that it has a non-superimposable mirror image.</p>
+</div>
+</div>
+</div>
+<!-- Flashcard 2 -->
+<div class="flashcard perspective-1000 h-64 cursor-pointer group">
+<div class="flashcard-inner relative w-full h-full text-center transition-transform duration-500 shadow-sm rounded-xl">
+<div class="flashcard-front absolute inset-0 glass-panel bg-white/80 p-lg flex flex-col justify-between items-center rounded-xl border border-primary/20">
+<p class="text-label-sm text-primary uppercase tracking-widest font-bold">IUPAC Rule</p>
+<p class="font-headline-md text-on-surface">Alcohol Suffix</p>
+<div class="flex items-center gap-sm text-on-surface-variant text-label-sm">
+<span class="material-symbols-outlined">touch_app</span>
+<span class="">Tap to flip</span>
+</div>
+</div>
+<div class="flashcard-back absolute inset-0 bg-primary-container p-lg flex flex-col justify-center items-center rounded-xl">
+<p class="text-body-md text-on-primary-container font-semibold">Change the ending of the parent alkane from -e to -ol.</p>
+</div>
+</div>
+</div>
+<!-- Add Card Placeholder -->
+<div class="border-2 border-dashed border-primary/30 rounded-xl p-lg h-64 flex flex-col justify-center items-center text-primary-container hover:border-primary hover:text-primary transition-all group cursor-pointer bg-primary-container/5">
+<span class="material-symbols-outlined text-[40px] group-hover:scale-110 transition-transform">add_circle</span>
+<p class="font-label-md mt-sm">Create New Card</p>
+</div>
+</div>
+<!-- Quizzes View (Hidden) -->
+<div class="tab-pane hidden space-y-lg" id="quizzes">
+<div class="glass-panel rounded-xl p-xl flex flex-col md:flex-row items-center gap-xl bg-white/80 border border-primary/20">
+<div class="bg-primary-container/40 p-lg rounded-full">
+<span class="material-symbols-outlined text-[64px] text-primary">psychology_alt</span>
+</div>
+<div class="flex-1 space-y-md text-center md:text-left">
+<h3 class="text-headline-md font-headline-md text-on-surface">Functional Groups Quiz</h3>
+<p class="text-body-md text-on-surface-variant">Test your knowledge on naming and identifying common organic functional groups.</p>
+<div class="flex flex-wrap gap-md justify-center md:justify-start">
+<span class="flex items-center gap-xs text-label-md bg-primary-container/30 text-on-primary-container px-md py-xs rounded-full">
+<span class="material-symbols-outlined text-[18px]">timer</span> 10 min
+                                        </span>
+<span class="flex items-center gap-xs text-label-md bg-primary-container/30 text-on-primary-container px-md py-xs rounded-full">
+<span class="material-symbols-outlined text-[18px]">list_alt</span> 15 Questions
+                                        </span>
+</div>
+</div>
+<button class="bg-primary text-on-primary px-xl py-md rounded-xl font-label-md hover:shadow-lg transition-all active:scale-95">Start Quiz</button>
+</div>
+</div>
+<!-- Summaries View (Hidden) -->
+<div class="tab-pane hidden grid grid-cols-1 md:grid-cols-2 gap-lg" id="summaries">
+<div class="glass-panel rounded-xl p-lg border-l-4 border-primary bg-white/80 border border-primary/20">
+<div class="flex justify-between items-start mb-md">
+<h4 class="font-headline-md text-on-surface">Executive Summary: Alkanes</h4>
+<span class="text-label-sm text-on-surface-variant">3 min read</span>
+</div>
+<p class="text-body-md text-on-surface-variant line-clamp-3">Alkanes are the simplest family of organic compounds, consisting entirely of single-bonded carbon and hydrogen atoms. They serve as the backbone for more complex...</p>
+<button class="mt-md text-primary font-label-md flex items-center gap-xs hover:underline">Read full summary <span class="material-symbols-outlined">arrow_right_alt</span></button>
+</div>
+<div class="glass-panel rounded-xl p-lg border-l-4 border-primary-container bg-white/80 border border-primary/20">
+<div class="flex justify-between items-start mb-md">
+<h4 class="font-headline-md text-on-surface">Reaction Mechanisms Cheat Sheet</h4>
+<span class="text-label-sm text-on-surface-variant">5 min read</span>
+</div>
+<p class="text-body-md text-on-surface-variant line-clamp-3">A concise breakdown of SN1, SN2, E1, and E2 mechanisms including solvent effects, stereochemistry, and rate laws...</p>
+<button class="mt-md text-primary font-label-md flex items-center gap-xs hover:underline">Read full summary <span class="material-symbols-outlined">arrow_right_alt</span></button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Micro-interaction Scripts -->
+<script>
+        // Generate Materials Button Simulation
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            const btn = this;
+            const section = document.getElementById('materialsSection');
+            
+            btn.classList.add('scale-95', 'opacity-80');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Analyzing Notes...';
+            
+            setTimeout(() => {
+                btn.classList.remove('scale-95', 'opacity-80');
+                btn.innerHTML = originalHTML;
+                
+                section.scrollIntoView({ behavior: 'smooth' });
+            }, 1200);
+        });
+
+        // Tab Navigation Logic
+        const tabs = document.querySelectorAll('.tab-btn');
+        const panes = document.querySelectorAll('.tab-pane');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Update tabs
+                tabs.forEach(t => {
+                    t.classList.remove('bg-primary', 'text-on-primary', 'font-bold', 'shadow-sm');
+                    t.classList.add('text-on-surface-variant', 'font-medium', 'hover:bg-primary-container/40');
+                });
+                tab.classList.remove('text-on-surface-variant', 'font-medium', 'hover:bg-primary-container/40');
+                tab.classList.add('bg-primary', 'text-on-primary', 'font-bold', 'shadow-sm');
+
+                // Update content
+                const target = tab.getAttribute('data-tab');
+                panes.forEach(pane => {
+                    if (pane.id === target) {
+                        pane.classList.remove('hidden');
+                        pane.classList.add('grid', 'fade-in');
+                        if (target === 'quizzes') {
+                           pane.classList.remove('grid');
+                           pane.classList.add('block');
+                        }
+                    } else {
+                        pane.classList.add('hidden');
+                        pane.classList.remove('grid', 'block', 'fade-in');
+                    }
+                });
+            });
+        });
+
+        // Flashcard Flip Logic
+        document.addEventListener('click', function(e) {
+            const card = e.target.closest('.flashcard');
+            if (card) {
+                card.classList.toggle('flipped');
+            }
+        });
+
+        // Side Navigation Interaction
+        document.querySelectorAll('nav a').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                item.style.transform = 'translateX(4px)';
+            });
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = 'translateX(0px)';
+            });
+        });
+    </script>
+</body></html>

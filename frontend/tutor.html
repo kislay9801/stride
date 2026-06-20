@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stride · AI Tutor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/assets/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-background text-on-surface">
+<div id="app-shell"></div>
+
+<main class="ml-64 pt-16 h-screen flex flex-col">
+  <div class="max-w-3xl w-full mx-auto flex-1 flex flex-col px-gutter py-lg min-h-0">
+    <section class="mb-md">
+      <h2 class="font-headline-lg text-headline-lg text-on-surface">AI Tutor</h2>
+      <p class="font-body-md text-body-md text-on-surface-variant">Ask anything — concepts, practice problems, or help planning your study.</p>
+    </section>
+
+    <div id="chat" class="flex-1 overflow-y-auto custom-scrollbar space-y-md py-md min-h-0"></div>
+
+    <div id="suggestions" class="flex flex-wrap gap-sm mb-md"></div>
+
+    <form id="chat-form" class="flex items-end gap-sm bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-sm shadow-sm">
+      <textarea id="chat-input" rows="1" class="flex-1 bg-transparent border-none focus:ring-0 resize-none max-h-32 px-md py-sm font-body-md custom-scrollbar" placeholder="Message your AI Tutor…"></textarea>
+      <button type="submit" id="send-btn" class="w-11 h-11 shrink-0 rounded-full bg-primary text-white flex items-center justify-center hover:brightness-110 active:scale-95 transition-all disabled:opacity-40">
+        <span class="material-symbols-outlined">send</span>
+      </button>
+    </form>
+    <p class="text-label-sm text-on-surface-variant/70 text-center mt-sm mb-md">Stride's tutor is powered by Gemini and can make mistakes. Verify important facts.</p>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="/assets/firebase-config.js"></script>
+<script src="/assets/auth.js"></script>
+<script src="/assets/common.js"></script>
+<script src="/assets/tutor.js"></script>
+</body>
+</html>

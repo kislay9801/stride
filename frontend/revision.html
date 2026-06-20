@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stride · Revision Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/assets/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-background text-on-surface">
+<div id="app-shell"></div>
+
+<main class="ml-64 pt-16 min-h-screen">
+  <div class="max-w-container-max mx-auto p-gutter space-y-xl">
+    <section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-lg">
+      <div class="space-y-sm">
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Revision Hub</h2>
+        <p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">Turn your notes into interactive study sessions — flashcards, quizzes, and summaries.</p>
+      </div>
+      <div class="flex gap-md items-center">
+        <select id="notebook-select" class="px-lg py-md border border-outline-variant rounded-xl bg-surface-container-lowest font-label-md text-label-md focus:ring-2 focus:ring-primary/20"></select>
+        <button id="new-notebook-btn" class="px-lg py-md border border-outline-variant rounded-xl font-label-md hover:bg-surface-container-low flex items-center gap-sm"><span class="material-symbols-outlined">add</span>New</button>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+      <!-- Notebook -->
+      <div class="md:col-span-8 glass-panel rounded-xl p-lg flex flex-col bg-primary-container/10">
+        <div class="flex justify-between items-center mb-lg">
+          <div class="flex items-center gap-md">
+            <span class="p-sm bg-primary-container rounded-lg"><span class="material-symbols-outlined text-primary">description</span></span>
+            <div>
+              <h3 id="nb-title" class="font-headline-md text-headline-md text-on-surface">—</h3>
+              <p id="nb-meta" class="text-label-sm text-on-surface-variant"></p>
+            </div>
+          </div>
+        </div>
+        <textarea id="nb-content" class="flex-1 notebook-lines min-h-[280px] p-md rounded-lg bg-surface-container-lowest border border-primary-container/30 text-body-md text-on-surface leading-loose resize-none focus:ring-2 focus:ring-primary/20 custom-scrollbar" placeholder="Write or paste your notes here…"></textarea>
+        <div id="nb-tags" class="mt-md flex flex-wrap gap-sm"></div>
+      </div>
+
+      <!-- Mastery + generate -->
+      <div class="md:col-span-4 flex flex-col gap-lg">
+        <div class="glass-panel rounded-xl p-lg space-y-md bg-primary-container/5">
+          <h4 class="font-headline-md text-headline-md text-on-surface">Weekly Mastery</h4>
+          <div id="mastery" class="space-y-md"></div>
+        </div>
+        <button id="generate-btn" class="bg-primary text-on-primary px-lg py-md rounded-xl font-label-md text-label-md flex items-center justify-center gap-md shadow-md hover:opacity-90 active:scale-95 transition-all">
+          <span class="material-symbols-outlined">auto_awesome</span> Generate Study Materials
+        </button>
+      </div>
+    </div>
+
+    <!-- Generated materials -->
+    <section id="materialsSection" class="pt-md">
+      <div class="bg-primary-container/20 p-xs rounded-xl flex gap-xs max-w-2xl mx-auto w-full mb-lg">
+        <button class="tab-btn flex-1 py-md rounded-lg flex items-center justify-center gap-sm transition-all bg-primary text-on-primary font-bold shadow-sm" data-tab="flashcards"><span class="material-symbols-outlined">style</span>Flashcards</button>
+        <button class="tab-btn flex-1 py-md rounded-lg flex items-center justify-center gap-sm transition-all text-on-surface-variant font-medium hover:bg-primary-container/40" data-tab="quizzes"><span class="material-symbols-outlined">quiz</span>Quizzes</button>
+        <button class="tab-btn flex-1 py-md rounded-lg flex items-center justify-center gap-sm transition-all text-on-surface-variant font-medium hover:bg-primary-container/40" data-tab="summaries"><span class="material-symbols-outlined">summarize</span>Summaries</button>
+      </div>
+      <div class="min-h-[360px]">
+        <div class="tab-pane grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-lg" id="flashcards"></div>
+        <div class="tab-pane hidden space-y-lg" id="quizzes"></div>
+        <div class="tab-pane hidden grid grid-cols-1 md:grid-cols-2 gap-lg" id="summaries"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="/assets/firebase-config.js"></script>
+<script src="/assets/auth.js"></script>
+<script src="/assets/common.js"></script>
+<script src="/assets/revision.js"></script>
+</body>
+</html>
