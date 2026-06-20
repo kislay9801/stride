@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stride · Help</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/assets/theme.js"></script>
+<script>/* Hide until auth resolves to avoid a flash before redirect; fail-safe reveal after 4s. */
+document.documentElement.style.visibility='hidden';setTimeout(function(){document.documentElement.style.visibility=''},4000);</script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-background text-on-surface">
+<div id="app-shell"></div>
+
+<main class="ml-64 pt-16 min-h-screen">
+  <div class="max-w-3xl mx-auto px-gutter py-xl space-y-xl">
+    <section>
+      <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Help &amp; Guide</h2>
+      <p class="font-body-lg text-body-lg text-on-surface-variant mt-xs">How each part of Stride works.</p>
+    </section>
+
+    <section class="grid sm:grid-cols-2 gap-lg">
+      <div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/10 space-y-sm">
+        <div class="flex items-center gap-md"><span class="material-symbols-outlined text-primary bg-primary-container/40 p-sm rounded-lg">dashboard</span><h3 class="font-headline-md text-headline-md text-on-surface">Dashboard</h3></div>
+        <p class="font-body-md text-body-md text-on-surface-variant">Your day at a glance: a timeline of tasks, your weekly focus chart, an AI insight, and your cognitive load. Use the <b>+</b> button to add a task; hover a task to mark it done or delete it.</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/10 space-y-sm">
+        <div class="flex items-center gap-md"><span class="material-symbols-outlined text-primary bg-primary-container/40 p-sm rounded-lg">assignment_turned_in</span><h3 class="font-headline-md text-headline-md text-on-surface">Assignment Breakdown</h3></div>
+        <p class="font-body-md text-body-md text-on-surface-variant">Paste a brief or upload a PDF/text file, then <b>Generate Roadmap</b> — AI turns it into ordered steps with estimates and due dates. Add, edit, complete, or delete steps anytime.</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/10 space-y-sm">
+        <div class="flex items-center gap-md"><span class="material-symbols-outlined text-primary bg-primary-container/40 p-sm rounded-lg">auto_stories</span><h3 class="font-headline-md text-headline-md text-on-surface">Revision Hub</h3></div>
+        <p class="font-body-md text-body-md text-on-surface-variant">Create a notebook and paste your notes. Click <b>Generate Study Materials</b> and AI builds flashcards, a quiz, and summaries from those notes — all at once. Flip cards, take the quiz, or add cards by hand.</p>
+      </div>
+      <div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/10 space-y-sm">
+        <div class="flex items-center gap-md"><span class="material-symbols-outlined text-primary bg-primary-container/40 p-sm rounded-lg">psychology</span><h3 class="font-headline-md text-headline-md text-on-surface">AI Tutor</h3></div>
+        <p class="font-body-md text-body-md text-on-surface-variant">Chat with an AI study companion — ask for explanations, get quizzed, or plan a study session. It knows what subjects you're working on.</p>
+      </div>
+    </section>
+
+    <section class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant/10 space-y-md">
+      <h3 class="font-headline-md text-headline-md text-primary">Good to know</h3>
+      <ul class="space-y-sm font-body-md text-body-md text-on-surface-variant">
+        <li class="flex gap-sm"><span class="material-symbols-outlined text-primary text-[20px]">monitoring</span><span><b class="text-on-surface">Cognitive Load</b> reflects your current workload — it rises with pending tasks and falls as you complete them. Lower means a lighter day.</span></li>
+        <li class="flex gap-sm"><span class="material-symbols-outlined text-primary text-[20px]">notifications</span><span><b class="text-on-surface">Reminders</b> live behind the bell in the top bar — today's tasks and upcoming assignment steps.</span></li>
+        <li class="flex gap-sm"><span class="material-symbols-outlined text-primary text-[20px]">search</span><span><b class="text-on-surface">Search</b> (top bar) finds your tasks, notebooks, and assignments.</span></li>
+        <li class="flex gap-sm"><span class="material-symbols-outlined text-primary text-[20px]">dark_mode</span><span><b class="text-on-surface">Dark mode</b> and your profile live in <a href="/settings.html" class="text-primary hover:underline">Settings</a>.</span></li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="/assets/firebase-config.js"></script>
+<script src="/assets/auth.js"></script>
+<script src="/assets/common.js"></script>
+<script src="/assets/help.js"></script>
+</body>
+</html>

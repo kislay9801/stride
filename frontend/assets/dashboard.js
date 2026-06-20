@@ -98,16 +98,22 @@ async function loadDashboard() {
   setTimeout(() => { arc.style.strokeDashoffset = String(CIRCUMFERENCE * (1 - cap / 100)); }, 300);
   const note = document.getElementById('capacity-note');
   const badge = document.getElementById('capacity-badge');
-  if (cap < 40) {
-    note.textContent = 'Low capacity. Consider a short break or a light review task.';
-    badge.querySelector('span:last-child').textContent = 'Rest Advised';
-  } else if (cap <= 80) {
-    note.textContent = "You're in the optimal zone for deep work. Avoid high-stress tasks for another hour.";
-    badge.querySelector('span:last-child').textContent = 'Optimal State';
+  const badgeLabel = badge.querySelector('span:last-child');
+  let level;
+  if (cap < 35) {
+    note.textContent = 'Light load today — a great time for deep work or getting ahead.';
+    badgeLabel.textContent = 'Light Load';
+    level = 'bg-secondary-container/20 text-secondary';
+  } else if (cap <= 75) {
+    note.textContent = "Balanced load. You're in a good zone for focused study.";
+    badgeLabel.textContent = 'Balanced';
+    level = 'bg-secondary-container/20 text-secondary';
   } else {
-    note.textContent = 'High load. Wrap up the current task before starting something new.';
-    badge.querySelector('span:last-child').textContent = 'High Load';
+    note.textContent = 'Heavy load. Prioritize what matters and space out demanding tasks.';
+    badgeLabel.textContent = 'Heavy Load';
+    level = 'bg-error-container/40 text-error';
   }
+  badge.className = `inline-flex items-center gap-xs px-md py-xs rounded-full ${level}`;
 
   // Weekly chart
   const maxH = Math.max(...d.weekly.map((w) => w.hours), 1);

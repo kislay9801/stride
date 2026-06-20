@@ -96,7 +96,7 @@ function renderShell() {
       <div class="mt-auto flex flex-col gap-sm">
         <div class="flex flex-col gap-xs pt-md border-t border-outline-variant/30">
           <a class="flex items-center gap-md px-md py-sm ${window.location.pathname === '/settings.html' ? 'text-primary font-bold' : 'text-on-surface-variant font-medium'} hover:bg-primary-container/30 rounded-lg transition-colors" href="/settings.html"><span class="material-symbols-outlined">settings</span><span class="font-body-md text-body-md">Settings</span></a>
-          <a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-medium hover:bg-primary-container/30 rounded-lg transition-colors" href="/settings.html#help"><span class="material-symbols-outlined">help</span><span class="font-body-md text-body-md">Help</span></a>
+          <a class="flex items-center gap-md px-md py-sm ${window.location.pathname === '/help.html' ? 'text-primary font-bold' : 'text-on-surface-variant font-medium'} hover:bg-primary-container/30 rounded-lg transition-colors" href="/help.html"><span class="material-symbols-outlined">help</span><span class="font-body-md text-body-md">Help</span></a>
           <button id="signout-btn" class="hidden items-center gap-md px-md py-sm text-error font-medium hover:bg-error-container/30 rounded-lg transition-colors w-full"><span class="material-symbols-outlined">logout</span><span class="font-body-md text-body-md">Sign Out</span></button>
         </div>
       </div>
@@ -110,7 +110,13 @@ function renderShell() {
         <div id="search-results" class="hidden absolute top-full left-0 right-0 mt-sm bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant/20 max-h-96 overflow-y-auto custom-scrollbar z-50"></div>
       </div>
       <div class="flex items-center gap-lg">
-        <button class="material-symbols-outlined text-primary p-xs hover:bg-surface-container-highest/50 rounded-full transition-all active:scale-90">notifications</button>
+        <div class="relative">
+          <button id="notif-btn" class="relative p-xs hover:bg-surface-container-highest/50 rounded-full transition-all active:scale-90 flex items-center">
+            <span class="material-symbols-outlined text-primary">notifications</span>
+            <span id="notif-badge" class="hidden absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-error text-white text-[10px] font-bold rounded-full flex items-center justify-center"></span>
+          </button>
+          <div id="notif-panel" class="hidden absolute right-0 top-full mt-sm w-80 bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant/20 max-h-96 overflow-y-auto custom-scrollbar z-50"></div>
+        </div>
         <div id="shell-avatar" class="w-8 h-8 rounded-full bg-primary-fixed-dim overflow-hidden border-2 border-white"></div>
       </div>
     </header>`;
@@ -124,6 +130,55 @@ function renderShell() {
   }
 
   wireSearch();
+  wireNotifications();
+}
+
+// Notification bell: lists today's pending tasks + due assignment steps.
+async function wireNotifications() {
+  const btn = document.getElementById('notif-btn');
+  const panel = document.getElementById('notif-panel');
+  const badge = document.getElementById('notif-badge');
+  if (!btn || !panel) return;
+
+  let data = { tasks: [], assignments: [], count: 0 };
+  try {
+    data = await api.get('/reminders');
+  } catch {
+    return; // not signed in / offline — leave the bell quiet
+  }
+
+  if (data.count > 0) {
+    badge.textContent = data.count > 9 ? '9+' : String(data.count);
+    badge.classList.remove('hidden');
+  }
+
+  const item = (icon, title, sub, href) =>
+    `<a href="${href}" class="flex items-center gap-md px-md py-sm hover:bg-surface-container-low transition-colors">
+      <span class="material-symbols-outlined text-primary">${icon}</span>
+      <span class="flex-1 min-w-0"><span class="block font-label-md text-label-md text-on-surface truncate">${title}</span>${sub ? `<span class="block text-label-sm text-on-surface-variant truncate">${sub}</span>` : ''}</span>
+    </a>`;
+
+  const sections =
+    (data.tasks.length
+      ? `<div class="px-md pt-md pb-xs text-label-sm text-on-surface-variant uppercase tracking-widest">Today</div>` +
+        data.tasks.map((t) => item('event', t.title, [t.start_time, t.end_time].filter(Boolean).join(' — '), '/index.html')).join('')
+      : '') +
+    (data.assignments.length
+      ? `<div class="px-md pt-md pb-xs text-label-sm text-on-surface-variant uppercase tracking-widest">Assignments</div>` +
+        data.assignments.map((a) => item('assignment_turned_in', a.title, a.due_date ? `Due ${a.due_date}` : a.assignment, '/assignments.html')).join('')
+      : '');
+
+  panel.innerHTML =
+    `<div class="px-md py-md border-b border-outline-variant/10 font-label-md font-bold text-on-surface">Reminders</div>` +
+    (sections || '<div class="px-md py-lg text-center text-on-surface-variant text-body-md">You\'re all caught up 🎉</div>');
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    panel.classList.toggle('hidden');
+  });
+  document.addEventListener('click', (e) => {
+    if (!panel.contains(e.target) && !btn.contains(e.target)) panel.classList.add('hidden');
+  });
 }
 
 // Sets the avatar in the top bar once user data is loaded.
