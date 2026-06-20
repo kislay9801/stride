@@ -66,12 +66,12 @@ function roadmapItem(t, isLast) {
       <div class="w-8 h-8 rounded-full ${s.wrap} flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">${s.icon}</span></div>
       ${isLast ? '' : '<div class="w-0.5 h-16 bg-surface-container-highest mt-sm"></div>'}
     </div>
-    <div class="flex-1">
-      <div class="flex items-center justify-between mb-xs">
-        <h4 class="font-label-md font-bold ${titleCls}">${t.title}</h4>${badge}
+    <div class="flex-1 min-w-0">
+      <div class="flex items-start justify-between gap-sm mb-xs">
+        <h4 class="font-label-md font-bold ${titleCls} break-words min-w-0">${t.title}</h4><span class="shrink-0">${badge}</span>
       </div>
-      <p class="text-body-md ${t.status === 'done' ? 'text-on-surface-variant/60' : 'text-on-surface-variant'}">${t.description || ''}</p>
-      <div class="mt-md flex gap-lg items-center">
+      <p class="text-body-md break-words ${t.status === 'done' ? 'text-on-surface-variant/60' : 'text-on-surface-variant'}">${t.description || ''}</p>
+      <div class="mt-md flex flex-wrap gap-x-md gap-y-sm items-center">
         <div class="flex items-center gap-xs text-label-sm text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">schedule</span>${hoursLabel}</div>
         ${due}
         <div class="ml-auto flex items-center gap-md">

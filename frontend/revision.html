@@ -21,9 +21,9 @@ document.documentElement.style.visibility='hidden';setTimeout(function(){documen
         <h2 class="font-headline-lg text-headline-lg text-on-surface">Revision Hub</h2>
         <p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">Turn your notes into interactive study sessions — flashcards, quizzes, and summaries.</p>
       </div>
-      <div class="flex gap-md items-center">
-        <select id="notebook-select" class="px-lg py-md border border-outline-variant rounded-xl bg-surface-container-lowest font-label-md text-label-md focus:ring-2 focus:ring-primary/20"></select>
-        <button id="new-notebook-btn" class="px-lg py-md border border-outline-variant rounded-xl font-label-md hover:bg-surface-container-low flex items-center gap-sm"><span class="material-symbols-outlined">add</span>New</button>
+      <div class="flex gap-md items-center w-full md:w-auto min-w-0">
+        <select id="notebook-select" class="flex-1 md:flex-none max-w-full px-lg py-md border border-outline-variant rounded-xl bg-surface-container-lowest font-label-md text-label-md focus:ring-2 focus:ring-primary/20"></select>
+        <button id="new-notebook-btn" class="shrink-0 px-lg py-md border border-outline-variant rounded-xl font-label-md hover:bg-surface-container-low flex items-center gap-sm"><span class="material-symbols-outlined">add</span>New</button>
       </div>
     </section>
 
@@ -71,9 +71,9 @@ document.documentElement.style.visibility='hidden';setTimeout(function(){documen
     <!-- Generated materials -->
     <section id="materialsSection" class="pt-md">
       <div class="bg-primary-container/20 p-xs rounded-xl flex gap-xs max-w-2xl mx-auto w-full mb-lg">
-        <button class="tab-btn flex-1 py-md rounded-lg flex items-center justify-center gap-sm transition-all bg-primary text-on-primary font-bold shadow-sm" data-tab="flashcards"><span class="material-symbols-outlined">style</span>Flashcards</button>
-        <button class="tab-btn flex-1 py-md rounded-lg flex items-center justify-center gap-sm transition-all text-on-surface-variant font-medium hover:bg-primary-container/40" data-tab="quizzes"><span class="material-symbols-outlined">quiz</span>Quizzes</button>
-        <button class="tab-btn flex-1 py-md rounded-lg flex items-center justify-center gap-sm transition-all text-on-surface-variant font-medium hover:bg-primary-container/40" data-tab="summaries"><span class="material-symbols-outlined">summarize</span>Summaries</button>
+        <button class="tab-btn flex-1 py-sm sm:py-md rounded-lg flex flex-col sm:flex-row items-center justify-center gap-xs sm:gap-sm text-label-sm sm:text-label-md transition-all bg-primary text-on-primary font-bold shadow-sm" data-tab="flashcards"><span class="material-symbols-outlined">style</span>Flashcards</button>
+        <button class="tab-btn flex-1 py-sm sm:py-md rounded-lg flex flex-col sm:flex-row items-center justify-center gap-xs sm:gap-sm text-label-sm sm:text-label-md transition-all text-on-surface-variant font-medium hover:bg-primary-container/40" data-tab="quizzes"><span class="material-symbols-outlined">quiz</span>Quizzes</button>
+        <button class="tab-btn flex-1 py-sm sm:py-md rounded-lg flex flex-col sm:flex-row items-center justify-center gap-xs sm:gap-sm text-label-sm sm:text-label-md transition-all text-on-surface-variant font-medium hover:bg-primary-container/40" data-tab="summaries"><span class="material-symbols-outlined">summarize</span>Summaries</button>
       </div>
       <div class="min-h-[360px]">
         <div class="tab-pane grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-lg" id="flashcards"></div>

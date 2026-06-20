@@ -78,6 +78,7 @@ tailwind.config = {
 };
 
 const baseStyles = `
+  html, body { overflow-x: hidden; max-width: 100%; }
   body { font-family: 'Geist', sans-serif; -webkit-font-smoothing: antialiased; }
   .glass-effect, .glass-card { background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
   .glass-card { border: 1px solid rgba(55,101,107,0.05); }
