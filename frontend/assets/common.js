@@ -87,7 +87,8 @@ function renderShell() {
   const shell = document.getElementById('app-shell');
   if (!shell) return;
   shell.innerHTML = `
-    <nav class="h-screen w-64 fixed left-0 top-0 flex flex-col py-xl px-md bg-surface-container-low z-50 border-r border-outline-variant/20">
+    <div id="nav-backdrop" class="hidden fixed inset-0 bg-black/40 z-[45] lg:hidden"></div>
+    <nav id="app-nav" class="h-screen w-64 fixed left-0 top-0 flex flex-col py-xl px-md bg-surface-container-low z-50 border-r border-outline-variant/20 -translate-x-full lg:translate-x-0 transition-transform duration-300">
       <div class="mb-xl px-md">
         <h1 class="text-headline-md font-headline-md font-bold text-primary">Stride</h1>
         <p class="font-body-md text-body-md text-on-surface-variant">Stay Focused</p>
@@ -101,7 +102,8 @@ function renderShell() {
         </div>
       </div>
     </nav>
-    <header class="fixed top-0 right-0 left-64 h-16 glass-effect z-40 flex items-center justify-between px-gutter border-b border-outline-variant/10">
+    <header class="fixed top-0 right-0 left-0 lg:left-64 h-16 glass-effect z-40 flex items-center gap-sm justify-between px-gutter border-b border-outline-variant/10">
+      <button id="nav-toggle" class="lg:hidden p-xs hover:bg-surface-container-highest/50 rounded-full transition-all active:scale-90 shrink-0 flex items-center"><span class="material-symbols-outlined text-primary">menu</span></button>
       <div class="flex-1 max-w-xl relative">
         <div class="relative flex items-center bg-surface-container-high rounded-full px-lg py-xs">
           <span class="material-symbols-outlined text-on-surface-variant mr-sm">search</span>
@@ -115,7 +117,7 @@ function renderShell() {
             <span class="material-symbols-outlined text-primary">notifications</span>
             <span id="notif-badge" class="hidden absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-error text-white text-[10px] font-bold rounded-full flex items-center justify-center"></span>
           </button>
-          <div id="notif-panel" class="hidden absolute right-0 top-full mt-sm w-80 bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant/20 max-h-96 overflow-y-auto custom-scrollbar z-50"></div>
+          <div id="notif-panel" class="hidden absolute right-0 top-full mt-sm w-80 max-w-[calc(100vw-2rem)] bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant/20 max-h-96 overflow-y-auto custom-scrollbar z-50"></div>
         </div>
         <div id="shell-avatar" class="w-8 h-8 rounded-full bg-primary-fixed-dim overflow-hidden border-2 border-white"></div>
       </div>
@@ -131,6 +133,15 @@ function renderShell() {
 
   wireSearch();
   wireNotifications();
+
+  // Mobile nav drawer: hamburger opens, backdrop or a link closes it.
+  const navEl = document.getElementById('app-nav');
+  const backdrop = document.getElementById('nav-backdrop');
+  const closeNav = () => { navEl?.classList.add('-translate-x-full'); backdrop?.classList.add('hidden'); };
+  const openNav = () => { navEl?.classList.remove('-translate-x-full'); backdrop?.classList.remove('hidden'); };
+  document.getElementById('nav-toggle')?.addEventListener('click', openNav);
+  backdrop?.addEventListener('click', closeNav);
+  navEl?.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeNav));
 }
 
 // Notification bell: lists today's pending tasks + due assignment steps.
