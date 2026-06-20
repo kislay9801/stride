@@ -11,14 +11,18 @@ async function computeCognitiveLoad(userId) {
   const todayTasks = await all('SELECT status FROM tasks WHERE user_id = ? AND date = ?', [userId, today]);
   const pendingToday = todayTasks.filter((t) => t.status !== 'done').length;
   const doneToday = todayTasks.filter((t) => t.status === 'done').length;
-  const assignRow = await get(
-    "SELECT COUNT(*) AS c FROM tasks WHERE user_id = ? AND assignment_id IS NOT NULL AND status != 'done'",
+
+  // Only the *active* (current) step of each assignment counts toward today's load.
+  // Future "upcoming" steps — e.g. scheduled weeks out — shouldn't inflate it now;
+  // they start counting once they become the active step.
+  const activeRow = await get(
+    "SELECT COUNT(*) AS c FROM tasks WHERE user_id = ? AND assignment_id IS NOT NULL AND status = 'active'",
     [userId]
   );
-  const assignmentPending = assignRow?.c || 0;
+  const activeSteps = activeRow?.c || 0;
 
-  // Weighted: pending work raises load, finishing work lowers it.
-  let load = 20 + pendingToday * 15 + assignmentPending * 6 - doneToday * 8;
+  // Weighted: imminent work raises load, finishing work lowers it.
+  let load = 20 + pendingToday * 15 + activeSteps * 10 - doneToday * 8;
   return Math.max(10, Math.min(95, Math.round(load)));
 }
 

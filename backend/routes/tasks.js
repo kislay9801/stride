@@ -33,6 +33,19 @@ router.patch('/:id', async (req, res) => {
      estimate_hours ?? null, due_date ?? null, icon ?? null, start_time ?? null, end_time ?? null, task.id]
   );
 
+  // When a roadmap step is completed, promote the next step to "active" so the
+  // roadmap advances and cognitive load reflects the new current step.
+  if (status === 'done' && task.assignment_id) {
+    const hasActive = await get("SELECT id FROM tasks WHERE assignment_id = ? AND status = 'active'", [task.assignment_id]);
+    if (!hasActive) {
+      const next = await get(
+        "SELECT id FROM tasks WHERE assignment_id = ? AND status = 'upcoming' ORDER BY sort_order LIMIT 1",
+        [task.assignment_id]
+      );
+      if (next) await run("UPDATE tasks SET status = 'active' WHERE id = ?", [next.id]);
+    }
+  }
+
   res.json(await get('SELECT * FROM tasks WHERE id = ?', [task.id]));
 });
 
