@@ -4,7 +4,9 @@ import { dirname, join } from 'node:path';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const dataDir = join(__dirname, '..', '..', 'data');
+// STRIDE_DATA_DIR lets the DB live on a mounted persistent disk in production
+// (e.g. Render). Falls back to a local ./data folder for development.
+const dataDir = process.env.STRIDE_DATA_DIR || join(__dirname, '..', '..', 'data');
 mkdirSync(dataDir, { recursive: true });
 
 const db = new Database(join(dataDir, 'stride.db'));

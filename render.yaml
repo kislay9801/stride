@@ -1,0 +1,42 @@
+# Render Blueprint for Stride.
+# Deploy: push to GitHub → Render Dashboard → New → Blueprint → pick this repo.
+# Render reads this file and creates the service. Set the secret values (marked
+# sync:false) in the dashboard when prompted.
+
+services:
+  - type: web
+    name: stride
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeployTrigger: commit
+    envVars:
+      # --- AI (required for AI features) ---
+      - key: GEMINI_API_KEY
+        sync: false                 # paste in the Render dashboard
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
+
+      # --- Firebase Auth (optional; leave unset to run in demo mode) ---
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false                 # paste the full key incl. \n sequences
+
+      # --- Where the SQLite file lives ---
+      # Free plan has NO persistent disk, so data resets on restart/redeploy
+      # (the app re-seeds demo data automatically, so it's never empty).
+      # For real persistence: upgrade this service to the Starter plan, then
+      # uncomment the `disk:` block below and set STRIDE_DATA_DIR=/var/data.
+      - key: STRIDE_DATA_DIR
+        value: /tmp/stride-data
+
+    # --- Persistent storage (PAID plans only) ---
+    # plan: starter
+    # disk:
+    #   name: stride-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
