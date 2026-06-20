@@ -86,9 +86,6 @@ function renderShell() {
       </div>
       <div class="flex-1 flex flex-col gap-sm">${navLinks}</div>
       <div class="mt-auto flex flex-col gap-sm">
-        <button id="focus-mode-btn" class="bg-primary-container text-on-primary-container py-md rounded-xl font-bold mb-lg hover:brightness-95 transition-all active:scale-95 flex items-center justify-center gap-sm">
-          <span class="material-symbols-outlined">bolt</span> Start Focus Mode
-        </button>
         <div class="flex flex-col gap-xs pt-md border-t border-outline-variant/30">
           <a class="flex items-center gap-md px-md py-sm ${window.location.pathname === '/settings.html' ? 'text-primary font-bold' : 'text-on-surface-variant font-medium'} hover:bg-primary-container/30 rounded-lg transition-colors" href="/settings.html"><span class="material-symbols-outlined">settings</span><span class="font-body-md text-body-md">Settings</span></a>
           <a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-medium hover:bg-primary-container/30 rounded-lg transition-colors" href="/settings.html#help"><span class="material-symbols-outlined">help</span><span class="font-body-md text-body-md">Help</span></a>
@@ -119,17 +116,6 @@ function renderShell() {
   }
 
   wireSearch();
-
-  // Focus mode dims the chrome to reduce distraction.
-  const focusBtn = document.getElementById('focus-mode-btn');
-  focusBtn?.addEventListener('click', () => {
-    const on = document.body.classList.toggle('focus-mode-on');
-    document.querySelector('#app-shell nav')?.classList.toggle('focus-mode-active', on);
-    document.querySelector('#app-shell header')?.classList.toggle('focus-mode-active', on);
-    focusBtn.innerHTML = on
-      ? '<span class="material-symbols-outlined">close</span> Exit Focus Mode'
-      : '<span class="material-symbols-outlined">bolt</span> Start Focus Mode';
-  });
 }
 
 // Sets the avatar in the top bar once user data is loaded.

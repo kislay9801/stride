@@ -94,7 +94,6 @@ const baseStyles = `
   .flashcard-back { transform: rotateY(180deg); }
   .fade-in { animation: fadeIn 0.4s ease-out forwards; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .focus-mode-active { opacity: 0.2; pointer-events: none; transition: opacity 0.5s ease; }
 
   /* Dark mode — overrides the dominant light surfaces/text. Teal accents carry over. */
   html.dark body { background: #0f1414; color: #e0e3e3; }
