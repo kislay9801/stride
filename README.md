@@ -25,7 +25,7 @@ Plus a working **global search** (top bar) across tasks, notebooks, and assignme
 ## Tech stack
 
 - **Backend:** Node.js + Express (ESM)
-- **Database:** SQLite via `better-sqlite3` (a file at `data/stride.db`, created automatically)
+- **Database:** SQLite via `@libsql/client` — a local file in dev, **Turso** (cloud SQLite) in production
 - **AI:** Google Gemini REST API (`gemini-2.0-flash` by default)
 - **Auth:** Firebase Authentication (optional) — `firebase-admin` verifies ID tokens server-side
 - **Frontend:** static HTML + Tailwind (Play CDN) + vanilla JS — no build step
@@ -92,10 +92,23 @@ account starts with a clean slate** (no fake stats). The demo user is never show
 
 > Both `.env` and `serviceAccountKey.json` are git-ignored — keep your keys out of version control.
 
-## Deployment
+## Deployment (Vercel + Turso)
 
-Target: **Vercel** (hosting) + **Turso** (persistent cloud SQLite). Setup instructions will be
-added here once the migration is wired up.
+The app runs as a Vercel serverless function ([api/index.js](api/index.js) wraps the Express
+app via [vercel.json](vercel.json)) backed by **Turso** (persistent cloud SQLite).
+
+1. **Create a Turso DB** at [app.turso.tech](https://app.turso.tech) → copy its **Database URL**
+   and create an **auth token**.
+2. **Import the repo into Vercel** (New Project → pick the GitHub repo).
+3. In **Vercel → Settings → Environment Variables**, add:
+   - `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`
+   - `GEMINI_API_KEY`, `GEMINI_MODEL`
+   - `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` (for auth)
+4. **Deploy.** The schema is created automatically on first request.
+5. Add your Vercel URL to **Firebase → Authentication → Authorized domains** so Google sign-in
+   works in production.
+
+Locally, leave `TURSO_*` blank in `.env` to use a local SQLite file instead.
 
 ### Reset the demo data
 ```bash
@@ -109,11 +122,15 @@ This wipes and re-seeds the database. (To start fully fresh instead, delete the 
 stride/
 ├─ package.json
 ├─ .env.example          # copy to .env
+├─ api/
+│  └─ index.js           # Vercel serverless entry (exports the Express app)
+├─ vercel.json           # Vercel build/route config
 ├─ backend/
-│  ├─ server.js          # Express app: API + static frontend, auto-seed
+│  ├─ app.js             # builds the Express app (API + static), DB bootstrap
+│  ├─ server.js          # local dev entry (app.listen)
 │  ├─ db/
 │  │  ├─ schema.sql      # tables
-│  │  ├─ database.js     # connection + schema bootstrap + migrations
+│  │  ├─ database.js     # libsql client (Turso/file) + async helpers + migrations
 │  │  └─ seed.js         # demo data (also `npm run seed`)
 │  ├─ services/
 │  │  ├─ gemini.js       # Gemini REST wrapper (generate / generateJSON / chat)

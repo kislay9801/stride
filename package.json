@@ -12,7 +12,7 @@
     "seed": "node backend/db/seed.js"
   },
   "dependencies": {
-    "better-sqlite3": "^11.8.1",
+    "@libsql/client": "^0.17.4",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "firebase-admin": "^12.7.0",

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import db from '../db/database.js';
+import { all } from '../db/database.js';
 import { chat, GeminiError } from '../services/gemini.js';
 
 const router = Router();
@@ -14,7 +14,7 @@ router.post('/chat', async (req, res) => {
   if (messages.length === 0) return res.status(400).json({ error: 'messages array is required' });
 
   // Give the tutor light context about what the student is studying.
-  const subjects = db.prepare('SELECT subject, percent FROM mastery WHERE user_id = ?').all(req.userId);
+  const subjects = await all('SELECT subject, percent FROM mastery WHERE user_id = ?', [req.userId]);
   const context = subjects.length
     ? `\nFor context, the student is currently studying: ${subjects.map((s) => `${s.subject} (${s.percent}% mastery)`).join(', ')}.`
     : '';
