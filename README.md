@@ -92,25 +92,10 @@ account starts with a clean slate** (no fake stats). The demo user is never show
 
 > Both `.env` and `serviceAccountKey.json` are git-ignored — keep your keys out of version control.
 
-## Deploy to Render
+## Deployment
 
-This repo includes a [`render.yaml`](render.yaml) blueprint, so the Express + SQLite app
-deploys without code changes.
-
-1. Push to GitHub (already done).
-2. [Render Dashboard](https://dashboard.render.com) → **New** → **Blueprint** → select this repo.
-3. Render reads `render.yaml`. When prompted, paste your secrets:
-   `GEMINI_API_KEY` (and the `FIREBASE_*` vars if you want auth in production).
-4. Deploy. You'll get a public `https://<name>.onrender.com` URL.
-
-**Persistence caveat:** Render's **free** plan has no persistent disk, so the SQLite file lives
-on ephemeral storage and resets on restart/redeploy (the app re-seeds demo data, so it's never
-empty). For durable data, upgrade the service to the **Starter** plan and uncomment the `disk:`
-block in `render.yaml` (then set `STRIDE_DATA_DIR=/var/data`). The DB path is controlled by the
-`STRIDE_DATA_DIR` env var.
-
-> Don't forget to add your production URL to Firebase Auth → **Authorized domains** so Google
-> sign-in works on the deployed site.
+Target: **Vercel** (hosting) + **Turso** (persistent cloud SQLite). Setup instructions will be
+added here once the migration is wired up.
 
 ### Reset the demo data
 ```bash
