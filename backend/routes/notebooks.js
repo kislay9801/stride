@@ -66,7 +66,7 @@ router.post('/:id/flashcards', async (req, res) => {
 
 async function genFlashcards(nb, source) {
   const data = await generateJSON(
-    `From these study notes, create 4 concise flashcards. Return STRICT JSON: ` +
+    `From these study notes, create 5 concise flashcards. Return STRICT JSON: ` +
     `{"cards":[{"label":string,"front":string,"back":string}]}. ` +
     `"label" is a 1-2 word category (e.g. "Concept", "Definition"), "front" is a term/question, "back" is the answer. Notes:\n"""${source}"""`,
     { temperature: 0.5 }
@@ -81,7 +81,7 @@ async function genFlashcards(nb, source) {
 
 async function genQuiz(nb, source) {
   const data = await generateJSON(
-    `From these study notes, create one multiple-choice quiz with 4-6 questions. Return STRICT JSON: ` +
+    `From these study notes, create one multiple-choice quiz with exactly 10 questions. Return STRICT JSON: ` +
     `{"title":string,"description":string,"durationMin":number,` +
     `"questions":[{"question":string,"options":[string,string,string,string],"answerIndex":number,"explanation":string}]}. Notes:\n"""${source}"""`,
     { temperature: 0.5 }
@@ -94,7 +94,7 @@ async function genQuiz(nb, source) {
 
 async function genSummaries(nb, source) {
   const data = await generateJSON(
-    `From these study notes, create 2 summaries. Return STRICT JSON: ` +
+    `From these study notes, create 3 to 4 summaries. Return STRICT JSON: ` +
     `{"summaries":[{"title":string,"body":string,"readTime":string}]}. ` +
     `"body" is 2-4 sentences, "readTime" like "3 min read". Notes:\n"""${source}"""`,
     { temperature: 0.5 }

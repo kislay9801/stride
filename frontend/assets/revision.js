@@ -252,6 +252,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.querySelectorAll('.tab-btn').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
 
+  // Flip a flashcard on click (delegated so it works for generated cards too).
+  document.getElementById('flashcards').addEventListener('click', (e) => {
+    if (e.target.closest('#add-card')) return; // the "Create New Card" tile isn't a flip target
+    const card = e.target.closest('.flashcard');
+    if (card) card.classList.toggle('flipped');
+  });
+
   document.getElementById('notebook-select').addEventListener('change', (e) => {
     current = notebooks.find((n) => n.id === Number(e.target.value));
     renderNotebook();
