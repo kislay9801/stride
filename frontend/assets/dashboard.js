@@ -22,12 +22,15 @@ function timelineItem(t) {
     <div class="w-12 h-12 shrink-0 rounded-full ${styles.ring} flex items-center justify-center z-10 shadow-sm transition-transform group-hover:scale-110">
       <span class="material-symbols-outlined" ${t.status === 'done' ? "style=\"font-variation-settings:'FILL' 1;\"" : ''}>${t.icon}</span>
     </div>
-    <div class="pt-2">
+    <div class="pt-2 flex-1">
       <p class="font-label-md text-label-md font-bold ${styles.label}">${t.title}</p>
       <p class="font-label-sm text-label-sm text-on-surface-variant">${[t.start_time, t.end_time].filter(Boolean).join(' — ')}</p>
       ${styles.note ? `<p class="text-label-sm ${styles.sub} mt-1 font-medium">${styles.note}</p>` : ''}
       ${action}
     </div>
+    <button data-del="${t.id}" title="Delete task" class="opacity-0 group-hover:opacity-100 transition-opacity text-on-surface-variant hover:text-error p-xs rounded-full hover:bg-error-container/30 mt-2">
+      <span class="material-symbols-outlined text-[20px]">delete</span>
+    </button>
   </div>`;
 }
 
@@ -76,6 +79,14 @@ async function loadDashboard() {
     btn.addEventListener('click', async () => {
       await api.patch(`/tasks/${btn.dataset.complete}`, { status: 'done' });
       toast('Task completed ✓', 'success');
+      loadDashboard();
+    })
+  );
+  timeline.querySelectorAll('[data-del]').forEach((btn) =>
+    btn.addEventListener('click', async () => {
+      if (!confirm('Delete this task?')) return;
+      await api.del(`/tasks/${btn.dataset.del}`);
+      toast('Task deleted', 'success');
       loadDashboard();
     })
   );

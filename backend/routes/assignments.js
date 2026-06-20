@@ -81,6 +81,22 @@ router.post('/breakdown', upload.single('file'), async (req, res) => {
   res.status(201).json(await withProgress(created));
 });
 
+// POST /api/assignments/:id/tasks — add a step to an assignment's roadmap.
+router.post('/:id/tasks', async (req, res) => {
+  const a = await get('SELECT * FROM assignments WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
+  if (!a) return res.status(404).json({ error: 'Assignment not found' });
+  const { title, description, estimate_hours, due_date } = req.body;
+  if (!title || !title.trim()) return res.status(400).json({ error: 'title is required' });
+  const max = await get('SELECT MAX(sort_order) m FROM tasks WHERE assignment_id = ?', [a.id]);
+  const sort = (max?.m ?? -1) + 1;
+  await run(
+    `INSERT INTO tasks (user_id, assignment_id, title, description, status, estimate_hours, due_date, sort_order)
+     VALUES (?, ?, ?, ?, 'upcoming', ?, ?, ?)`,
+    [req.userId, a.id, title.trim(), description ?? '', Number(estimate_hours) || 0, due_date || null, sort]
+  );
+  res.status(201).json(await withProgress(a));
+});
+
 // DELETE /api/assignments/:id (also removes its tasks)
 router.delete('/:id', async (req, res) => {
   const a = await get('SELECT id FROM assignments WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);

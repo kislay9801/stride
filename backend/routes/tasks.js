@@ -4,20 +4,44 @@ import { get, all, run } from '../db/database.js';
 const router = Router();
 const STATUSES = ['done', 'active', 'upcoming'];
 
-// PATCH /api/tasks/:id — update status and/or spent hours.
+// PATCH /api/tasks/:id — update status, hours, or editable fields.
 router.patch('/:id', async (req, res) => {
   const task = await get('SELECT * FROM tasks WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
   if (!task) return res.status(404).json({ error: 'Task not found' });
 
-  const { status, spent_hours } = req.body;
+  const { status, spent_hours, title, description, estimate_hours, due_date, icon, start_time, end_time } = req.body;
   if (status !== undefined && !STATUSES.includes(status)) {
     return res.status(400).json({ error: `status must be one of ${STATUSES.join(', ')}` });
   }
+  if (title !== undefined && !String(title).trim()) {
+    return res.status(400).json({ error: 'title cannot be empty' });
+  }
 
-  await run('UPDATE tasks SET status = COALESCE(?, status), spent_hours = COALESCE(?, spent_hours) WHERE id = ?',
-    [status ?? null, spent_hours ?? null, task.id]);
+  await run(
+    `UPDATE tasks SET
+       status = COALESCE(?, status),
+       spent_hours = COALESCE(?, spent_hours),
+       title = COALESCE(?, title),
+       description = COALESCE(?, description),
+       estimate_hours = COALESCE(?, estimate_hours),
+       due_date = COALESCE(?, due_date),
+       icon = COALESCE(?, icon),
+       start_time = COALESCE(?, start_time),
+       end_time = COALESCE(?, end_time)
+     WHERE id = ?`,
+    [status ?? null, spent_hours ?? null, title?.trim() ?? null, description ?? null,
+     estimate_hours ?? null, due_date ?? null, icon ?? null, start_time ?? null, end_time ?? null, task.id]
+  );
 
   res.json(await get('SELECT * FROM tasks WHERE id = ?', [task.id]));
+});
+
+// DELETE /api/tasks/:id
+router.delete('/:id', async (req, res) => {
+  const task = await get('SELECT id FROM tasks WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
+  if (!task) return res.status(404).json({ error: 'Task not found' });
+  await run('DELETE FROM tasks WHERE id = ?', [task.id]);
+  res.status(204).end();
 });
 
 // POST /api/tasks — create a standalone timeline task.

@@ -27,6 +27,16 @@ document.documentElement.style.visibility='hidden';setTimeout(function(){documen
       </div>
     </section>
 
+    <!-- How it works -->
+    <div class="glass-panel rounded-xl p-md bg-primary-container/10 flex flex-col sm:flex-row gap-md sm:items-center">
+      <span class="flex items-center gap-xs font-bold text-primary text-label-md shrink-0"><span class="material-symbols-outlined text-[18px]">tips_and_updates</span>How it works</span>
+      <div class="flex flex-wrap gap-x-lg gap-y-xs text-label-sm text-on-surface-variant">
+        <span><b class="text-on-surface">1.</b> Write or paste your notes below</span>
+        <span><b class="text-on-surface">2.</b> Choose Flashcards, Quizzes, or Summaries</span>
+        <span><b class="text-on-surface">3.</b> Click Generate — AI builds them from your notes</span>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-12 gap-lg">
       <!-- Notebook -->
       <div class="md:col-span-8 glass-panel rounded-xl p-lg flex flex-col bg-primary-container/10">
@@ -49,9 +59,12 @@ document.documentElement.style.visibility='hidden';setTimeout(function(){documen
           <h4 class="font-headline-md text-headline-md text-on-surface">Weekly Mastery</h4>
           <div id="mastery" class="space-y-md"></div>
         </div>
-        <button id="generate-btn" class="bg-primary text-on-primary px-lg py-md rounded-xl font-label-md text-label-md flex items-center justify-center gap-md shadow-md hover:opacity-90 active:scale-95 transition-all">
-          <span class="material-symbols-outlined">auto_awesome</span> Generate Study Materials
-        </button>
+        <div>
+          <button id="generate-btn" class="w-full bg-primary text-on-primary px-lg py-md rounded-xl font-label-md text-label-md flex items-center justify-center gap-md shadow-md hover:opacity-90 active:scale-95 transition-all">
+            <span class="material-symbols-outlined">auto_awesome</span> <span id="generate-label">Generate Flashcards</span>
+          </button>
+          <p id="generate-hint" class="text-label-sm text-on-surface-variant text-center mt-sm">Creates flashcards from the notes in this notebook using AI.</p>
+        </div>
       </div>
     </div>
 
@@ -70,6 +83,58 @@ document.documentElement.style.visibility='hidden';setTimeout(function(){documen
     </section>
   </div>
 </main>
+
+<!-- New Notebook Modal -->
+<div id="notebook-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-md bg-black/40 backdrop-blur-sm">
+  <div class="bg-surface-container-lowest rounded-xl p-xl w-full max-w-md shadow-2xl fade-in">
+    <div class="flex items-center justify-between mb-lg">
+      <h3 class="font-headline-md text-headline-md text-primary">New Notebook</h3>
+      <button type="button" id="nb-close" class="material-symbols-outlined text-on-surface-variant hover:text-on-surface p-xs rounded-full hover:bg-surface-container-high">close</button>
+    </div>
+    <form id="notebook-form" class="space-y-md">
+      <div>
+        <label class="block text-label-sm text-on-surface-variant mb-xs">Title</label>
+        <input id="nb-new-title" required class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20" placeholder="e.g. Cell Biology"/>
+      </div>
+      <div>
+        <label class="block text-label-sm text-on-surface-variant mb-xs">Tags <span class="opacity-60">(comma-separated, optional)</span></label>
+        <input id="nb-new-tags" class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20" placeholder="#biology, #midterm"/>
+      </div>
+      <div class="flex justify-end gap-sm pt-sm">
+        <button type="button" id="nb-cancel" class="px-lg py-md rounded-full border border-outline-variant font-label-md hover:bg-surface-container-low transition-colors">Cancel</button>
+        <button type="submit" id="nb-submit" class="px-lg py-md rounded-full bg-primary text-on-primary font-label-md hover:opacity-90 active:scale-95 transition-all">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- New Flashcard Modal -->
+<div id="card-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-md bg-black/40 backdrop-blur-sm">
+  <div class="bg-surface-container-lowest rounded-xl p-xl w-full max-w-md shadow-2xl fade-in">
+    <div class="flex items-center justify-between mb-lg">
+      <h3 class="font-headline-md text-headline-md text-primary">New Flashcard</h3>
+      <button type="button" id="card-close" class="material-symbols-outlined text-on-surface-variant hover:text-on-surface p-xs rounded-full hover:bg-surface-container-high">close</button>
+    </div>
+    <form id="card-form" class="space-y-md">
+      <div>
+        <label class="block text-label-sm text-on-surface-variant mb-xs">Label <span class="opacity-60">(category)</span></label>
+        <input id="card-label" class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20" placeholder="Concept"/>
+      </div>
+      <div>
+        <label class="block text-label-sm text-on-surface-variant mb-xs">Front (term / question)</label>
+        <input id="card-front" required class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20" placeholder="What is …?"/>
+      </div>
+      <div>
+        <label class="block text-label-sm text-on-surface-variant mb-xs">Back (answer)</label>
+        <textarea id="card-back" rows="3" required class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20 custom-scrollbar" placeholder="The answer…"></textarea>
+      </div>
+      <div class="flex justify-end gap-sm pt-sm">
+        <button type="button" id="card-cancel" class="px-lg py-md rounded-full border border-outline-variant font-label-md hover:bg-surface-container-low transition-colors">Cancel</button>
+        <button type="submit" id="card-submit" class="px-lg py-md rounded-full bg-primary text-on-primary font-label-md hover:opacity-90 active:scale-95 transition-all">Add Card</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>

@@ -58,8 +58,8 @@ function roadmapItem(t, isLast) {
   const hoursLabel = t.status === 'done' ? `${t.spent_hours}h spent` : `${t.estimate_hours}h estimate`;
   const due = t.due_date ? `<div class="flex items-center gap-xs text-label-sm ${t.status === 'active' ? 'text-error' : 'text-on-surface-variant'} font-medium"><span class="material-symbols-outlined text-[16px]">event</span>${t.due_date}</div>` : '';
   const toggle = t.status === 'done'
-    ? `<button data-reopen="${t.id}" class="ml-auto text-on-surface-variant font-label-sm hover:underline">Reopen</button>`
-    : `<button data-done="${t.id}" class="ml-auto text-primary font-label-sm hover:underline">Mark Done</button>`;
+    ? `<button data-reopen="${t.id}" class="text-on-surface-variant font-label-sm hover:underline">Reopen</button>`
+    : `<button data-done="${t.id}" class="text-primary font-label-sm hover:underline">Mark Done</button>`;
 
   return `<div class="group flex gap-lg p-lg rounded-xl ${t.status === 'active' ? 'bg-primary-container/10 border border-primary-container/30' : 'hover:bg-surface-container-low'} transition-colors items-start">
     <div class="flex flex-col items-center">
@@ -73,7 +73,12 @@ function roadmapItem(t, isLast) {
       <p class="text-body-md ${t.status === 'done' ? 'text-on-surface-variant/60' : 'text-on-surface-variant'}">${t.description || ''}</p>
       <div class="mt-md flex gap-lg items-center">
         <div class="flex items-center gap-xs text-label-sm text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">schedule</span>${hoursLabel}</div>
-        ${due}${toggle}
+        ${due}
+        <div class="ml-auto flex items-center gap-md">
+          ${toggle}
+          <button data-edit="${t.id}" title="Edit step" class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+          <button data-delstep="${t.id}" title="Delete step" class="text-on-surface-variant hover:text-error"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+        </div>
       </div>
     </div>
   </div>`;
@@ -82,6 +87,7 @@ function roadmapItem(t, isLast) {
 function renderRoadmap() {
   const a = assignments.find((x) => x.id === currentId);
   const roadmap = document.getElementById('roadmap');
+  document.getElementById('add-step-btn').disabled = !a;
   if (!a) {
     roadmap.innerHTML = '<p class="text-on-surface-variant text-body-md">No assignment yet. Generate one on the left to build your roadmap.</p>';
     document.getElementById('remaining-pill').textContent = '';
@@ -91,10 +97,19 @@ function renderRoadmap() {
 
   const remaining = a.tasks.filter((t) => t.status !== 'done').length;
   document.getElementById('remaining-pill').textContent = `${remaining} Task${remaining === 1 ? '' : 's'} Remaining`;
-  roadmap.innerHTML = a.tasks.map((t, i) => roadmapItem(t, i === a.tasks.length - 1)).join('');
+  roadmap.innerHTML = a.tasks.length
+    ? a.tasks.map((t, i) => roadmapItem(t, i === a.tasks.length - 1)).join('')
+    : '<p class="text-on-surface-variant text-body-md">No steps yet. Use “+ Step” to add one.</p>';
 
   roadmap.querySelectorAll('[data-done]').forEach((b) => b.addEventListener('click', () => updateTask(b.dataset.done, 'done')));
   roadmap.querySelectorAll('[data-reopen]').forEach((b) => b.addEventListener('click', () => updateTask(b.dataset.reopen, 'upcoming')));
+  roadmap.querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', () => openStepModal(a.tasks.find((t) => t.id === Number(b.dataset.edit)))));
+  roadmap.querySelectorAll('[data-delstep]').forEach((b) => b.addEventListener('click', async () => {
+    if (!confirm('Delete this step?')) return;
+    await api.del(`/tasks/${b.dataset.delstep}`);
+    toast('Step deleted', 'success');
+    await refresh(currentId);
+  }));
 
   document.getElementById('context').innerHTML = `
     <div class="flex flex-col">
@@ -116,6 +131,61 @@ async function updateTask(id, status) {
   await refresh(currentId);
 }
 
+// --- Add/Edit step modal ---
+let editingStepId = null;
+
+function openStepModal(task) {
+  if (!currentId) return toast('Select an assignment first.', 'error');
+  editingStepId = task ? task.id : null;
+  document.getElementById('step-modal-title').textContent = task ? 'Edit Step' : 'Add Step';
+  document.getElementById('step-title').value = task?.title || '';
+  document.getElementById('step-desc').value = task?.description || '';
+  document.getElementById('step-estimate').value = task?.estimate_hours ?? '';
+  document.getElementById('step-due').value = task?.due_date || '';
+  document.getElementById('step-modal').classList.remove('hidden');
+  document.getElementById('step-title').focus();
+}
+
+function closeStepModal() {
+  document.getElementById('step-modal').classList.add('hidden');
+}
+
+function setupStepModal() {
+  const modal = document.getElementById('step-modal');
+  document.getElementById('add-step-btn').addEventListener('click', () => openStepModal());
+  document.getElementById('step-close').addEventListener('click', closeStepModal);
+  document.getElementById('step-cancel').addEventListener('click', closeStepModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeStepModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeStepModal(); });
+
+  document.getElementById('step-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('step-title').value.trim();
+    if (!title) return;
+    const payload = {
+      title,
+      description: document.getElementById('step-desc').value.trim(),
+      estimate_hours: Number(document.getElementById('step-estimate').value) || 0,
+      due_date: document.getElementById('step-due').value.trim() || null,
+    };
+    const btn = document.getElementById('step-submit');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    try {
+      if (editingStepId) await api.patch(`/tasks/${editingStepId}`, payload);
+      else await api.post(`/assignments/${currentId}/tasks`, payload);
+      closeStepModal();
+      toast(editingStepId ? 'Step updated' : 'Step added', 'success');
+      await refresh(currentId);
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save';
+    }
+  });
+}
+
 function renderSelect() {
   const sel = document.getElementById('assignment-select');
   sel.innerHTML = assignments.map((a) => `<option value="${a.id}" ${a.id === currentId ? 'selected' : ''}>${a.title}</option>`).join('')
@@ -131,6 +201,7 @@ async function refresh(selectId) {
 
 document.addEventListener('DOMContentLoaded', async () => {
   api.get('/dashboard').then((d) => setShellAvatar(d.user.avatar_url)).catch(() => {});
+  setupStepModal();
   const wantId = Number(new URLSearchParams(location.search).get('assignment')) || undefined;
   try {
     await refresh(wantId);

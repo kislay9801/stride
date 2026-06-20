@@ -34,7 +34,7 @@ function renderFlashcards() {
   const add = `<div id="add-card" class="border-2 border-dashed border-primary/30 rounded-xl p-lg h-64 flex flex-col justify-center items-center text-primary hover:border-primary transition-all cursor-pointer bg-primary-container/5">
     <span class="material-symbols-outlined text-[40px]">add_circle</span><p class="font-label-md mt-sm">Create New Card</p></div>`;
   document.getElementById('flashcards').innerHTML = cards + add;
-  document.getElementById('add-card').addEventListener('click', addCardPrompt);
+  document.getElementById('add-card').addEventListener('click', openCardModal);
 }
 
 function renderQuizzes() {
@@ -136,8 +136,19 @@ function renderSelect() {
     || '<option disabled selected>No notebooks</option>';
 }
 
+const GEN_LABELS = {
+  flashcards: { label: 'Generate Flashcards', hint: 'Creates flashcards from the notes in this notebook using AI.' },
+  quizzes: { label: 'Generate Quiz', hint: 'Creates a multiple-choice quiz from the notes in this notebook using AI.' },
+  summaries: { label: 'Generate Summaries', hint: 'Creates summaries from the notes in this notebook using AI.' },
+};
+
 function switchTab(tab) {
   activeTab = tab;
+  const g = GEN_LABELS[tab] || GEN_LABELS.flashcards;
+  const labelEl = document.getElementById('generate-label');
+  const hintEl = document.getElementById('generate-hint');
+  if (labelEl) labelEl.textContent = g.label;
+  if (hintEl) hintEl.textContent = g.hint;
   document.querySelectorAll('.tab-btn').forEach((b) => {
     const on = b.dataset.tab === tab;
     b.classList.toggle('bg-primary', on);
@@ -154,15 +165,78 @@ function switchTab(tab) {
   });
 }
 
-async function addCardPrompt() {
-  const front = prompt('Front of card (term/question):');
-  if (!front) return;
-  const back = prompt('Back of card (answer):');
-  if (!back) return;
-  const card = await api.post(`/notebooks/${current.id}/flashcards`, { front, back, label: 'Concept' });
-  current.flashcards.push(card);
-  renderFlashcards();
-  toast('Card added', 'success');
+function openCardModal() {
+  if (!current) return toast('Create a notebook first.', 'error');
+  document.getElementById('card-form').reset();
+  document.getElementById('card-label').value = 'Concept';
+  document.getElementById('card-modal').classList.remove('hidden');
+  document.getElementById('card-front').focus();
+}
+function closeCardModal() { document.getElementById('card-modal').classList.add('hidden'); }
+
+function setupCardModal() {
+  const modal = document.getElementById('card-modal');
+  document.getElementById('card-close').addEventListener('click', closeCardModal);
+  document.getElementById('card-cancel').addEventListener('click', closeCardModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeCardModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeCardModal(); });
+
+  document.getElementById('card-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const front = document.getElementById('card-front').value.trim();
+    const back = document.getElementById('card-back').value.trim();
+    if (!front || !back) return;
+    const btn = document.getElementById('card-submit');
+    btn.disabled = true; btn.textContent = 'Adding…';
+    try {
+      const card = await api.post(`/notebooks/${current.id}/flashcards`, {
+        front, back, label: document.getElementById('card-label').value.trim() || 'Concept',
+      });
+      current.flashcards.push(card);
+      renderFlashcards();
+      closeCardModal();
+      toast('Card added', 'success');
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Add Card';
+    }
+  });
+}
+
+// New Notebook modal
+function openNotebookModal() {
+  document.getElementById('notebook-form').reset();
+  document.getElementById('notebook-modal').classList.remove('hidden');
+  document.getElementById('nb-new-title').focus();
+}
+function closeNotebookModal() { document.getElementById('notebook-modal').classList.add('hidden'); }
+
+function setupNotebookModal() {
+  const modal = document.getElementById('notebook-modal');
+  document.getElementById('nb-close').addEventListener('click', closeNotebookModal);
+  document.getElementById('nb-cancel').addEventListener('click', closeNotebookModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeNotebookModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeNotebookModal(); });
+
+  document.getElementById('notebook-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('nb-new-title').value.trim();
+    if (!title) return;
+    const tags = document.getElementById('nb-new-tags').value.split(',').map((t) => t.trim()).filter(Boolean);
+    const btn = document.getElementById('nb-submit');
+    btn.disabled = true; btn.textContent = 'Creating…';
+    try {
+      const nb = await api.post('/notebooks', { title, content: '', tags });
+      closeNotebookModal();
+      await load(nb.id);
+      toast('Notebook created', 'success');
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Create';
+    }
+  });
 }
 
 async function load(selectId) {
@@ -203,13 +277,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  document.getElementById('new-notebook-btn').addEventListener('click', async () => {
-    const title = prompt('Notebook title:');
-    if (!title) return;
-    const nb = await api.post('/notebooks', { title, content: '', tags: [] });
-    await load(nb.id);
-    toast('Notebook created', 'success');
-  });
+  setupNotebookModal();
+  setupCardModal();
+  document.getElementById('new-notebook-btn').addEventListener('click', openNotebookModal);
 
   document.getElementById('generate-btn').addEventListener('click', async () => {
     if (!current) return toast('Create a notebook first.', 'error');
