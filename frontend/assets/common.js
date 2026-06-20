@@ -6,6 +6,14 @@ const api = {
 
     // Attach the Firebase ID token when auth is enabled.
     const token = window.Stride ? await window.Stride.getToken() : null;
+
+    // Not signed in (auth enabled) → go to the landing/sign-in page silently.
+    // Returning a never-resolving promise lets navigation take over without
+    // throwing an error that pages would surface as a toast.
+    if (window.Stride?.authEnabled && !token) {
+      window.location.replace('/login.html');
+      return new Promise(() => {});
+    }
     if (token) opts.headers['Authorization'] = `Bearer ${token}`;
 
     if (body !== undefined) {
@@ -19,7 +27,7 @@ const api = {
     const res = await fetch(`/api${path}`, opts);
     if (res.status === 401 && window.Stride?.authEnabled) {
       window.location.replace('/login.html');
-      throw new Error('Session expired');
+      return new Promise(() => {});
     }
     const data = res.status === 204 ? null : await res.json().catch(() => null);
     if (!res.ok) throw new Error(data?.error || `Request failed (${res.status})`);

@@ -149,13 +149,69 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  document.getElementById('fab').addEventListener('click', async () => {
-    const title = prompt('New task title:');
-    if (!title) return;
-    const time = prompt('Time (e.g. "03:00 PM — 04:00 PM"), or leave blank:') || '';
-    const [start_time, end_time] = time.split('—').map((s) => s.trim());
-    await api.post('/tasks', { title, start_time: start_time || null, end_time: end_time || null });
-    toast('Task added', 'success');
-    loadDashboard();
-  });
+  setupTaskModal();
 });
+
+// --- Add Task modal ---
+const TASK_ICONS = ['task_alt', 'menu_book', 'edit_note', 'science', 'calculate', 'psychology', 'group', 'fitness_center'];
+let selectedIcon = TASK_ICONS[0];
+
+function renderIconChips() {
+  const host = document.getElementById('task-icons');
+  host.innerHTML = TASK_ICONS.map((ic) => {
+    const on = ic === selectedIcon;
+    return `<button type="button" data-icon="${ic}" class="w-10 h-10 rounded-lg flex items-center justify-center transition-all ${on ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant hover:bg-primary-container/40'}">
+      <span class="material-symbols-outlined">${ic}</span></button>`;
+  }).join('');
+  host.querySelectorAll('[data-icon]').forEach((b) =>
+    b.addEventListener('click', () => { selectedIcon = b.dataset.icon; renderIconChips(); })
+  );
+}
+
+function openTaskModal() {
+  selectedIcon = TASK_ICONS[0];
+  document.getElementById('task-form').reset();
+  renderIconChips();
+  document.getElementById('task-modal').classList.remove('hidden');
+  document.getElementById('task-title').focus();
+}
+
+function closeTaskModal() {
+  document.getElementById('task-modal').classList.add('hidden');
+}
+
+function setupTaskModal() {
+  const modal = document.getElementById('task-modal');
+  document.getElementById('fab').addEventListener('click', openTaskModal);
+  document.getElementById('task-close').addEventListener('click', closeTaskModal);
+  document.getElementById('task-cancel').addEventListener('click', closeTaskModal);
+  // Close when clicking the dim backdrop or pressing Escape.
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeTaskModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeTaskModal(); });
+
+  document.getElementById('task-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('task-title').value.trim();
+    if (!title) return;
+    const btn = document.getElementById('task-submit');
+    btn.disabled = true;
+    btn.textContent = 'Adding…';
+    try {
+      await api.post('/tasks', {
+        title,
+        description: document.getElementById('task-desc').value.trim() || null,
+        start_time: document.getElementById('task-start').value.trim() || null,
+        end_time: document.getElementById('task-end').value.trim() || null,
+        icon: selectedIcon,
+      });
+      closeTaskModal();
+      toast('Task added', 'success');
+      loadDashboard();
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Add Task';
+    }
+  });
+}

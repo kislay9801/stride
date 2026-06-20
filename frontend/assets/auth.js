@@ -27,15 +27,23 @@
 
   const isLoginPage = /\/login\.html$/.test(window.location.pathname);
 
+  // Protected pages hide themselves (inline guard in <head>) until auth resolves,
+  // so an unauthenticated visitor never sees the app flash before redirecting.
+  const reveal = () => { document.documentElement.style.visibility = ''; };
+
   // Gate: protected pages require a signed-in user; login page bounces if already in.
   // In demo mode there's no gating at all, and the login page stays viewable
   // (login.js shows a "demo mode" banner) so it can be previewed.
-  if (authEnabled) {
+  if (!authEnabled) {
+    reveal();
+  } else {
     ready.then(() => {
       if (!currentUser && !isLoginPage) {
-        window.location.replace('/login.html');
+        window.location.replace('/login.html'); // stay hidden through the redirect
       } else if (currentUser && isLoginPage) {
         window.location.replace('/');
+      } else {
+        reveal(); // signed in on a protected page (or on the login page itself)
       }
     });
   }

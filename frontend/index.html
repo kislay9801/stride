@@ -6,6 +6,8 @@
 <title>Stride · Dashboard</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="/assets/theme.js"></script>
+<script>/* Hide until auth resolves to avoid a flash before redirect; fail-safe reveal after 4s. */
+document.documentElement.style.visibility='hidden';setTimeout(function(){document.documentElement.style.visibility=''},4000);</script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
 </head>
@@ -93,6 +95,44 @@
 <button id="fab" class="fixed bottom-lg right-lg w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all z-50">
   <span class="material-symbols-outlined" style="font-size: 32px;">add</span>
 </button>
+
+<!-- Add Task Modal -->
+<div id="task-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-md bg-black/40 backdrop-blur-sm">
+  <div class="bg-surface-container-lowest rounded-xl p-xl w-full max-w-md shadow-2xl fade-in">
+    <div class="flex items-center justify-between mb-lg">
+      <h3 class="font-headline-md text-headline-md text-primary">New Task</h3>
+      <button type="button" id="task-close" class="material-symbols-outlined text-on-surface-variant hover:text-on-surface p-xs rounded-full hover:bg-surface-container-high">close</button>
+    </div>
+    <form id="task-form" class="space-y-md">
+      <div>
+        <label class="block text-label-sm text-on-surface-variant mb-xs">Title</label>
+        <input id="task-title" required class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20" placeholder="e.g. Review Chapter 4"/>
+      </div>
+      <div>
+        <label class="block text-label-sm text-on-surface-variant mb-xs">Description <span class="opacity-60">(optional)</span></label>
+        <input id="task-desc" class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20" placeholder="A short note"/>
+      </div>
+      <div class="grid grid-cols-2 gap-md">
+        <div>
+          <label class="block text-label-sm text-on-surface-variant mb-xs">Start <span class="opacity-60">(optional)</span></label>
+          <input id="task-start" class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20" placeholder="9:00 AM"/>
+        </div>
+        <div>
+          <label class="block text-label-sm text-on-surface-variant mb-xs">End <span class="opacity-60">(optional)</span></label>
+          <input id="task-end" class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20" placeholder="10:30 AM"/>
+        </div>
+      </div>
+      <div>
+        <label class="block text-label-sm text-on-surface-variant mb-xs">Icon</label>
+        <div id="task-icons" class="flex flex-wrap gap-sm"></div>
+      </div>
+      <div class="flex justify-end gap-sm pt-sm">
+        <button type="button" id="task-cancel" class="px-lg py-md rounded-full border border-outline-variant font-label-md hover:bg-surface-container-low transition-colors">Cancel</button>
+        <button type="submit" id="task-submit" class="px-lg py-md rounded-full bg-primary text-on-primary font-label-md hover:opacity-90 active:scale-95 transition-all">Add Task</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
