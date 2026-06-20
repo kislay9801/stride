@@ -28,8 +28,12 @@ function friendlyError(code) {
     'auth/invalid-email': 'That email address looks invalid.',
     'auth/popup-closed-by-user': 'Sign-in window closed before completing.',
     'auth/popup-blocked': 'Your browser blocked the sign-in popup.',
+    'auth/operation-not-allowed': 'Google sign-in is not enabled in Firebase (Authentication → Sign-in method).',
+    'auth/unauthorized-domain': 'This domain is not authorized in Firebase (Authentication → Settings → Authorized domains).',
+    'auth/configuration-not-found': 'Firebase Auth is not configured — enable a sign-in provider in the console.',
   };
-  return map[code] || 'Something went wrong. Please try again.';
+  // Show the raw code for anything unmapped so it can be diagnosed.
+  return map[code] || `Sign-in failed: ${code || 'unknown error'}`;
 }
 
 function runDemoMode() {
@@ -75,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await firebase.auth().signInWithPopup(provider);
       window.location.replace('/');
     } catch (e) {
+      console.error('Google sign-in error:', e.code, e.message, e);
       toast(friendlyError(e.code), 'error');
     }
   });
