@@ -2,7 +2,44 @@
 
 let assignments = [];
 let currentId = null;
-let pickedFile = null;
+let extractedText = ''; // text pulled from an uploaded file, client-side
+
+// Configure the pdf.js worker (loaded via CDN in assignments.html).
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+async function extractPdfText(file) {
+  const data = new Uint8Array(await file.arrayBuffer());
+  const pdf = await pdfjsLib.getDocument({ data }).promise;
+  let text = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map((it) => it.str).join(' ') + '\n';
+  }
+  return text;
+}
+
+// Reads a dropped/picked file entirely in the browser and stores its text,
+// so we never upload the raw file (avoids size limits + extracts real PDF text).
+async function handleFile(file) {
+  if (!file) return;
+  extractedText = '';
+  const nameEl = document.getElementById('file-name');
+  nameEl.textContent = `Reading ${file.name}…`;
+  try {
+    const isPdf = /\.pdf$/i.test(file.name) || file.type === 'application/pdf';
+    if (isPdf && !window.pdfjsLib) throw new Error('PDF reader failed to load');
+    extractedText = (isPdf ? await extractPdfText(file) : await file.text()).trim().slice(0, 20000);
+    nameEl.textContent = extractedText
+      ? `${file.name} ✓ — ${extractedText.length} characters extracted`
+      : `${file.name}: no text found (scanned PDF?). Paste the brief instead.`;
+  } catch (err) {
+    extractedText = '';
+    nameEl.textContent = `Couldn't read ${file.name}. Paste the text instead.`;
+  }
+}
 
 const stepIcon = {
   done: { wrap: 'bg-secondary text-white', icon: 'check' },
@@ -106,42 +143,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderRoadmap();
   });
 
-  // File picker / drag-drop
+  // File picker / drag-drop — text is extracted in the browser (see handleFile).
   const dz = document.getElementById('drop-zone');
   const fi = document.getElementById('file-input');
   dz.addEventListener('click', () => fi.click());
-  fi.addEventListener('change', () => {
-    pickedFile = fi.files[0] || null;
-    document.getElementById('file-name').textContent = pickedFile ? pickedFile.name : 'Drop a .txt / .md / .pdf, or click to browse.';
-  });
+  fi.addEventListener('change', () => handleFile(fi.files[0]));
   ['dragover', 'dragenter'].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add('bg-primary-container/20'); }));
   ['dragleave', 'drop'].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove('bg-primary-container/20'); }));
-  dz.addEventListener('drop', (e) => {
-    pickedFile = e.dataTransfer.files[0] || null;
-    document.getElementById('file-name').textContent = pickedFile ? pickedFile.name : '';
-  });
+  dz.addEventListener('drop', (e) => handleFile(e.dataTransfer.files[0]));
 
-  // Generate roadmap
+  // Generate roadmap — sends extracted text as JSON (no raw file upload).
   document.getElementById('breakdown-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const title = document.getElementById('title-input').value.trim();
-    const brief = document.getElementById('brief-input').value.trim();
-    if (!brief && !pickedFile) return toast('Paste a brief or upload a file first.', 'error');
+    const typed = document.getElementById('brief-input').value.trim();
+    const brief = [typed, extractedText].filter(Boolean).join('\n\n').trim();
+    if (!brief) return toast('Paste a brief or upload a readable file first.', 'error');
 
     const btn = document.getElementById('generate-btn');
     btn.disabled = true;
     const original = btn.innerHTML;
     btn.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">refresh</span> Analyzing…';
     try {
-      const fd = new FormData();
-      if (title) fd.append('title', title);
-      if (brief) fd.append('brief', brief);
-      if (pickedFile) fd.append('file', pickedFile);
-      const created = await api.postForm('/assignments/breakdown', fd);
+      const created = await api.post('/assignments/breakdown', { title: title || undefined, brief });
       toast('Roadmap generated ✓', 'success');
       document.getElementById('brief-input').value = '';
       document.getElementById('title-input').value = '';
-      pickedFile = null;
+      extractedText = '';
       document.getElementById('file-name').textContent = 'Drop a .txt / .md / .pdf, or click to browse.';
       await refresh(created.id);
     } catch (err) {
