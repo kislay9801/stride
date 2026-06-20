@@ -64,59 +64,74 @@ router.post('/:id/flashcards', async (req, res) => {
   res.status(201).json(await get('SELECT id, label, front, back FROM flashcards WHERE id = ?', [info.lastInsertRowid]));
 });
 
-// POST /api/notebooks/:id/generate { type: flashcards|quizzes|summaries }
+async function genFlashcards(nb, source) {
+  const data = await generateJSON(
+    `From these study notes, create 4 concise flashcards. Return STRICT JSON: ` +
+    `{"cards":[{"label":string,"front":string,"back":string}]}. ` +
+    `"label" is a 1-2 word category (e.g. "Concept", "Definition"), "front" is a term/question, "back" is the answer. Notes:\n"""${source}"""`,
+    { temperature: 0.5 }
+  );
+  const made = [];
+  for (const c of data.cards || []) {
+    const info = await run('INSERT INTO flashcards (notebook_id, label, front, back) VALUES (?, ?, ?, ?)', [nb.id, c.label || 'Concept', c.front, c.back]);
+    made.push({ id: info.lastInsertRowid, label: c.label, front: c.front, back: c.back });
+  }
+  return made;
+}
+
+async function genQuiz(nb, source) {
+  const data = await generateJSON(
+    `From these study notes, create one multiple-choice quiz with 4-6 questions. Return STRICT JSON: ` +
+    `{"title":string,"description":string,"durationMin":number,` +
+    `"questions":[{"question":string,"options":[string,string,string,string],"answerIndex":number,"explanation":string}]}. Notes:\n"""${source}"""`,
+    { temperature: 0.5 }
+  );
+  const info = await run('INSERT INTO quizzes (notebook_id, title, description, duration_min, questions) VALUES (?, ?, ?, ?, ?)',
+    [nb.id, data.title || 'Quiz', data.description || '', Number(data.durationMin) || 10, JSON.stringify(data.questions || [])]);
+  const row = await get('SELECT id, title, description, duration_min, questions FROM quizzes WHERE id = ?', [info.lastInsertRowid]);
+  return { ...row, questions: JSON.parse(row.questions) };
+}
+
+async function genSummaries(nb, source) {
+  const data = await generateJSON(
+    `From these study notes, create 2 summaries. Return STRICT JSON: ` +
+    `{"summaries":[{"title":string,"body":string,"readTime":string}]}. ` +
+    `"body" is 2-4 sentences, "readTime" like "3 min read". Notes:\n"""${source}"""`,
+    { temperature: 0.5 }
+  );
+  const made = [];
+  for (const s of data.summaries || []) {
+    const info = await run('INSERT INTO summaries (notebook_id, title, body, read_time) VALUES (?, ?, ?, ?)', [nb.id, s.title, s.body, s.readTime || '3 min read']);
+    made.push({ id: info.lastInsertRowid, title: s.title, body: s.body, read_time: s.readTime || '3 min read' });
+  }
+  return made;
+}
+
+// POST /api/notebooks/:id/generate { type: all|flashcards|quizzes|summaries }
+// Default ("all") generates flashcards, a quiz, and summaries together.
 router.post('/:id/generate', async (req, res) => {
   const nb = await get('SELECT * FROM notebooks WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
   if (!nb) return res.status(404).json({ error: 'Notebook not found' });
 
-  const type = req.body.type;
+  const type = req.body.type || 'all';
   const source = `${nb.title}\n\n${nb.content || ''}`.slice(0, 8000);
+  if (!(nb.content || '').trim()) {
+    return res.status(400).json({ error: 'Add some notes to this notebook before generating.' });
+  }
 
   try {
-    if (type === 'flashcards') {
-      const data = await generateJSON(
-        `From these study notes, create 4 concise flashcards. Return STRICT JSON: ` +
-        `{"cards":[{"label":string,"front":string,"back":string}]}. ` +
-        `"label" is a 1-2 word category (e.g. "Concept", "Definition"), "front" is a term/question, "back" is the answer. Notes:\n"""${source}"""`,
-        { temperature: 0.5 }
-      );
-      const made = [];
-      for (const c of data.cards || []) {
-        const info = await run('INSERT INTO flashcards (notebook_id, label, front, back) VALUES (?, ?, ?, ?)', [nb.id, c.label || 'Concept', c.front, c.back]);
-        made.push({ id: info.lastInsertRowid, label: c.label, front: c.front, back: c.back });
-      }
-      return res.status(201).json({ flashcards: made });
+    if (type === 'flashcards') return res.status(201).json({ flashcards: await genFlashcards(nb, source) });
+    if (type === 'quizzes') return res.status(201).json({ quiz: await genQuiz(nb, source) });
+    if (type === 'summaries') return res.status(201).json({ summaries: await genSummaries(nb, source) });
+    if (type === 'all') {
+      const [flashcards, quiz, summaries] = await Promise.all([
+        genFlashcards(nb, source),
+        genQuiz(nb, source),
+        genSummaries(nb, source),
+      ]);
+      return res.status(201).json({ flashcards, quiz, summaries });
     }
-
-    if (type === 'quizzes') {
-      const data = await generateJSON(
-        `From these study notes, create one multiple-choice quiz with 4-6 questions. Return STRICT JSON: ` +
-        `{"title":string,"description":string,"durationMin":number,` +
-        `"questions":[{"question":string,"options":[string,string,string,string],"answerIndex":number,"explanation":string}]}. Notes:\n"""${source}"""`,
-        { temperature: 0.5 }
-      );
-      const info = await run('INSERT INTO quizzes (notebook_id, title, description, duration_min, questions) VALUES (?, ?, ?, ?, ?)',
-        [nb.id, data.title || 'Quiz', data.description || '', Number(data.durationMin) || 10, JSON.stringify(data.questions || [])]);
-      const row = await get('SELECT id, title, description, duration_min, questions FROM quizzes WHERE id = ?', [info.lastInsertRowid]);
-      return res.status(201).json({ quiz: { ...row, questions: JSON.parse(row.questions) } });
-    }
-
-    if (type === 'summaries') {
-      const data = await generateJSON(
-        `From these study notes, create 2 summaries. Return STRICT JSON: ` +
-        `{"summaries":[{"title":string,"body":string,"readTime":string}]}. ` +
-        `"body" is 2-4 sentences, "readTime" like "3 min read". Notes:\n"""${source}"""`,
-        { temperature: 0.5 }
-      );
-      const made = [];
-      for (const s of data.summaries || []) {
-        const info = await run('INSERT INTO summaries (notebook_id, title, body, read_time) VALUES (?, ?, ?, ?)', [nb.id, s.title, s.body, s.readTime || '3 min read']);
-        made.push({ id: info.lastInsertRowid, title: s.title, body: s.body, read_time: s.readTime || '3 min read' });
-      }
-      return res.status(201).json({ summaries: made });
-    }
-
-    return res.status(400).json({ error: 'type must be flashcards, quizzes, or summaries' });
+    return res.status(400).json({ error: 'type must be all, flashcards, quizzes, or summaries' });
   } catch (e) {
     if (e instanceof GeminiError) return res.status(503).json({ error: e.message });
     throw e;

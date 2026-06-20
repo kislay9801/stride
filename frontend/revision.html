@@ -61,9 +61,9 @@ document.documentElement.style.visibility='hidden';setTimeout(function(){documen
         </div>
         <div>
           <button id="generate-btn" class="w-full bg-primary text-on-primary px-lg py-md rounded-xl font-label-md text-label-md flex items-center justify-center gap-md shadow-md hover:opacity-90 active:scale-95 transition-all">
-            <span class="material-symbols-outlined">auto_awesome</span> <span id="generate-label">Generate Flashcards</span>
+            <span class="material-symbols-outlined">auto_awesome</span> <span id="generate-label">Generate Study Materials</span>
           </button>
-          <p id="generate-hint" class="text-label-sm text-on-surface-variant text-center mt-sm">Creates flashcards from the notes in this notebook using AI.</p>
+          <p id="generate-hint" class="text-label-sm text-on-surface-variant text-center mt-sm">Creates flashcards, quizzes &amp; summaries from your notes — all at once.</p>
         </div>
       </div>
     </div>
@@ -99,6 +99,10 @@ document.documentElement.style.visibility='hidden';setTimeout(function(){documen
       <div>
         <label class="block text-label-sm text-on-surface-variant mb-xs">Tags <span class="opacity-60">(comma-separated, optional)</span></label>
         <input id="nb-new-tags" class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20" placeholder="#biology, #midterm"/>
+      </div>
+      <div>
+        <label class="block text-label-sm text-on-surface-variant mb-xs">Notes <span class="opacity-60">(paste your notes — flashcards, quiz &amp; summaries generate automatically)</span></label>
+        <textarea id="nb-new-content" rows="5" class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-lg py-md font-body-md focus:ring-2 focus:ring-primary/20 custom-scrollbar" placeholder="Paste or type your study notes here…"></textarea>
       </div>
       <div class="flex justify-end gap-sm pt-sm">
         <button type="button" id="nb-cancel" class="px-lg py-md rounded-full border border-outline-variant font-label-md hover:bg-surface-container-low transition-colors">Cancel</button>

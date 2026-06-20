@@ -136,19 +136,8 @@ function renderSelect() {
     || '<option disabled selected>No notebooks</option>';
 }
 
-const GEN_LABELS = {
-  flashcards: { label: 'Generate Flashcards', hint: 'Creates flashcards from the notes in this notebook using AI.' },
-  quizzes: { label: 'Generate Quiz', hint: 'Creates a multiple-choice quiz from the notes in this notebook using AI.' },
-  summaries: { label: 'Generate Summaries', hint: 'Creates summaries from the notes in this notebook using AI.' },
-};
-
 function switchTab(tab) {
   activeTab = tab;
-  const g = GEN_LABELS[tab] || GEN_LABELS.flashcards;
-  const labelEl = document.getElementById('generate-label');
-  const hintEl = document.getElementById('generate-hint');
-  if (labelEl) labelEl.textContent = g.label;
-  if (hintEl) hintEl.textContent = g.hint;
   document.querySelectorAll('.tab-btn').forEach((b) => {
     const on = b.dataset.tab === tab;
     b.classList.toggle('bg-primary', on);
@@ -224,13 +213,16 @@ function setupNotebookModal() {
     const title = document.getElementById('nb-new-title').value.trim();
     if (!title) return;
     const tags = document.getElementById('nb-new-tags').value.split(',').map((t) => t.trim()).filter(Boolean);
+    const content = document.getElementById('nb-new-content').value.trim();
     const btn = document.getElementById('nb-submit');
     btn.disabled = true; btn.textContent = 'Creating…';
     try {
-      const nb = await api.post('/notebooks', { title, content: '', tags });
+      const nb = await api.post('/notebooks', { title, content, tags });
       closeNotebookModal();
       await load(nb.id);
       toast('Notebook created', 'success');
+      // If notes were pasted, generate all study materials automatically.
+      if (content) await generateAll();
     } catch (err) {
       toast(err.message, 'error');
     } finally {
@@ -281,26 +273,30 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupCardModal();
   document.getElementById('new-notebook-btn').addEventListener('click', openNotebookModal);
 
-  document.getElementById('generate-btn').addEventListener('click', async () => {
-    if (!current) return toast('Create a notebook first.', 'error');
-    const btn = document.getElementById('generate-btn');
-    const original = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Analyzing Notes…';
-    try {
-      // Generate for whichever tab is active.
-      const res = await api.post(`/notebooks/${current.id}/generate`, { type: activeTab });
-      if (res.flashcards) current.flashcards.push(...res.flashcards);
-      if (res.quiz) current.quizzes.push(res.quiz);
-      if (res.summaries) current.summaries.push(...res.summaries);
-      renderNotebook();
-      switchTab(activeTab);
-      toast(`Generated ${activeTab} ✓`, 'success');
-    } catch (err) {
-      toast(err.message, 'error');
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = original;
-    }
-  });
+  document.getElementById('generate-btn').addEventListener('click', () => generateAll());
 });
+
+// Generates flashcards, a quiz, and summaries together from the notebook's notes.
+async function generateAll() {
+  if (!current) return toast('Create a notebook first.', 'error');
+  if (!(current.content || '').trim()) return toast('Write or paste some notes first.', 'error');
+
+  const btn = document.getElementById('generate-btn');
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Generating…';
+  try {
+    const res = await api.post(`/notebooks/${current.id}/generate`, { type: 'all' });
+    if (res.flashcards) current.flashcards.push(...res.flashcards);
+    if (res.quiz) current.quizzes.push(res.quiz);
+    if (res.summaries) current.summaries.push(...res.summaries);
+    renderNotebook();
+    switchTab('flashcards');
+    toast('Generated flashcards, quiz & summaries ✓', 'success');
+  } catch (err) {
+    toast(err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = original;
+  }
+}
