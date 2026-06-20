@@ -1,7 +1,7 @@
 // Thin wrapper around the Google Gemini REST API (no SDK dependency).
 // Docs: https://ai.google.dev/api/generate-content
 
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
 
 export function hasGeminiKey() {
   return Boolean(process.env.GEMINI_API_KEY);
