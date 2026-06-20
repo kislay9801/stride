@@ -287,12 +287,16 @@ async function generateAll() {
   btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Generating…';
   try {
     const res = await api.post(`/notebooks/${current.id}/generate`, { type: 'all' });
-    if (res.flashcards) current.flashcards.push(...res.flashcards);
+    if (res.flashcards?.length) current.flashcards.push(...res.flashcards);
     if (res.quiz) current.quizzes.push(res.quiz);
-    if (res.summaries) current.summaries.push(...res.summaries);
+    if (res.summaries?.length) current.summaries.push(...res.summaries);
     renderNotebook();
     switchTab('flashcards');
-    toast('Generated flashcards, quiz & summaries ✓', 'success');
+    if (res.failed && res.failed.length) {
+      toast(`Couldn't generate: ${res.failed.join(', ')}. Tap Generate again to retry those.`, 'error');
+    } else {
+      toast('Generated flashcards, quiz & summaries ✓', 'success');
+    }
   } catch (err) {
     toast(err.message, 'error');
   } finally {

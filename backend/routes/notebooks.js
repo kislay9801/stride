@@ -107,8 +107,23 @@ async function genSummaries(nb, source) {
   return made;
 }
 
+// Runs a generator with one retry — the LLM occasionally returns malformed JSON,
+// and a single retry resolves most of those transient failures.
+async function withRetry(fn, nb, source) {
+  try {
+    return await fn(nb, source);
+  } catch (first) {
+    try {
+      return await fn(nb, source);
+    } catch (second) {
+      throw second;
+    }
+  }
+}
+
 // POST /api/notebooks/:id/generate { type: all|flashcards|quizzes|summaries }
-// Default ("all") generates flashcards, a quiz, and summaries together.
+// Default ("all") generates flashcards, a quiz, and summaries together. Each type
+// is independent: one failing never blocks the others.
 router.post('/:id/generate', async (req, res) => {
   const nb = await get('SELECT * FROM notebooks WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
   if (!nb) return res.status(404).json({ error: 'Notebook not found' });
@@ -120,16 +135,32 @@ router.post('/:id/generate', async (req, res) => {
   }
 
   try {
-    if (type === 'flashcards') return res.status(201).json({ flashcards: await genFlashcards(nb, source) });
-    if (type === 'quizzes') return res.status(201).json({ quiz: await genQuiz(nb, source) });
-    if (type === 'summaries') return res.status(201).json({ summaries: await genSummaries(nb, source) });
+    if (type === 'flashcards') return res.status(201).json({ flashcards: await withRetry(genFlashcards, nb, source) });
+    if (type === 'quizzes') return res.status(201).json({ quiz: await withRetry(genQuiz, nb, source) });
+    if (type === 'summaries') return res.status(201).json({ summaries: await withRetry(genSummaries, nb, source) });
     if (type === 'all') {
-      const [flashcards, quiz, summaries] = await Promise.all([
-        genFlashcards(nb, source),
-        genQuiz(nb, source),
-        genSummaries(nb, source),
+      const [fc, qz, sm] = await Promise.allSettled([
+        withRetry(genFlashcards, nb, source),
+        withRetry(genQuiz, nb, source),
+        withRetry(genSummaries, nb, source),
       ]);
-      return res.status(201).json({ flashcards, quiz, summaries });
+      const failed = [];
+      if (fc.status !== 'fulfilled') failed.push('flashcards');
+      if (qz.status !== 'fulfilled') failed.push('quiz');
+      if (sm.status !== 'fulfilled') failed.push('summaries');
+
+      // If everything failed it's a real problem (e.g. quota/network) — surface it.
+      if (failed.length === 3) {
+        const err = fc.reason;
+        if (err instanceof GeminiError) return res.status(503).json({ error: err.message });
+        throw err;
+      }
+      return res.status(201).json({
+        flashcards: fc.status === 'fulfilled' ? fc.value : [],
+        quiz: qz.status === 'fulfilled' ? qz.value : null,
+        summaries: sm.status === 'fulfilled' ? sm.value : [],
+        failed,
+      });
     }
     return res.status(400).json({ error: 'type must be all, flashcards, quizzes, or summaries' });
   } catch (e) {
